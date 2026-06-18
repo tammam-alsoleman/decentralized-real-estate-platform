@@ -34,3 +34,24 @@ jobs:
 
       - name: Validate Docker Compose file
         run: docker compose config
+
+  auth-service-build:
+    name: Auth Service Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Auth Service dependencies
+        working-directory: services/auth-service
+        run: npm ci
+
+      - name: Build Auth Service
+        working-directory: services/auth-service
+        run: npm run build
