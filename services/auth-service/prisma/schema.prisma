@@ -7,3 +7,103 @@ datasource db {
   url      = env("DATABASE_URL")
   schemas  = ["auth_schema"]
 }
+
+enum UserRole {
+  CITIZEN
+  ADMIN
+
+  @@schema("auth_schema")
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+
+  @@schema("auth_schema")
+}
+
+enum OtpPurpose {
+  PHONE_VERIFICATION
+  LOGIN
+
+  @@schema("auth_schema")
+}
+
+enum LegalIdentityStatus {
+  NOT_SUBMITTED
+  SUBMITTED
+
+  @@schema("auth_schema")
+}
+
+model User {
+  id                   String                @id @default(uuid())
+  phoneNumber          String                @unique
+  passwordHash         String?
+  role                 UserRole              @default(CITIZEN)
+  status               UserStatus            @default(PENDING_VERIFICATION)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  otpCodes             OtpCode[]
+  sessions             Session[]
+  legalIdentityProfile LegalIdentityProfile?
+
+  @@map("users")
+  @@schema("auth_schema")
+}
+
+model OtpCode {
+  id          String     @id @default(uuid())
+  userId      String
+  phoneNumber String
+  codeHash    String
+  purpose     OtpPurpose
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  attempts    Int        @default(0)
+  createdAt   DateTime   @default(now())
+  user        User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([phoneNumber, purpose])
+  @@index([expiresAt])
+  @@map("otp_codes")
+  @@schema("auth_schema")
+}
+
+model Session {
+  id               String    @id @default(uuid())
+  userId           String
+  jti              String    @unique
+  refreshTokenHash String?
+  userAgent        String?
+  ipAddress        String?
+  revokedAt        DateTime?
+  expiresAt        DateTime
+  createdAt        DateTime  @default(now())
+  user             User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("sessions")
+  @@schema("auth_schema")
+}
+
+model LegalIdentityProfile {
+  id             String              @id @default(uuid())
+  userId         String              @unique
+  legalFullName  String
+  nationalIdHash String
+  dateOfBirth    DateTime?
+  status         LegalIdentityStatus @default(SUBMITTED)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  user           User                @relation(fields: [userId], references: [id])
+
+  @@index([nationalIdHash])
+  @@index([status])
+  @@map("legal_identity_profiles")
+  @@schema("auth_schema")
+}
