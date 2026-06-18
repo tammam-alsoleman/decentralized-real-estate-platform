@@ -1,0 +1,4 @@
+﻿CREATE SCHEMA IF NOT EXISTS auth_schema;
+CREATE SCHEMA IF NOT EXISTS property_schema;
+CREATE SCHEMA IF NOT EXISTS ai_schema;
+CREATE SCHEMA IF NOT EXISTS notification_schema;
