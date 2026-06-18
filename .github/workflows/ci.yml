@@ -54,6 +54,8 @@ jobs:
 
       - name: Validate Auth Service Prisma schema
         working-directory: services/auth-service
+        env:
+          DATABASE_URL: postgresql://realestate_user:realestate_password@localhost:5432/realestate_db?schema=auth_schema
         run: npm run prisma:validate
 
       - name: Build Auth Service
