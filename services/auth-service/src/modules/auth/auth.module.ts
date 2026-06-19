@@ -8,6 +8,7 @@ import { CreateUserUseCase } from './application/use-cases/create-user.use-case'
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
 import { GenerateOtpCodeUseCase } from './application/use-cases/generate-otp-code.use-case';
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
+import { RegisterUserWithOtpUseCase } from './application/use-cases/register-user-with-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from './application/use-cases/submit-legal-identity-profile.use-case';
 import { VerifyOtpCodeUseCase } from './application/use-cases/verify-otp-code.use-case';
 import { PrismaModule } from './infrastructure/persistence/prisma/prisma.module';
@@ -42,6 +43,7 @@ import { PrismaUserRepository } from './infrastructure/persistence/repositories/
     VerifyOtpCodeUseCase,
     ActivateUserUseCase,
     SubmitLegalIdentityProfileUseCase,
+    RegisterUserWithOtpUseCase,
   ],
 })
 export class AuthModule {}
