@@ -1,0 +1,4 @@
+export enum OtpPurpose {
+  PHONE_VERIFICATION = 'PHONE_VERIFICATION',
+  LOGIN = 'LOGIN',
+}
