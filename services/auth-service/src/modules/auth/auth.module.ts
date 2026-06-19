@@ -3,6 +3,7 @@ import { LEGAL_IDENTITY_REPOSITORY } from './application/ports/legal-identity.re
 import { OTP_CODE_REPOSITORY } from './application/ports/otp-code.repository.port';
 import { SESSION_REPOSITORY } from './application/ports/session.repository.port';
 import { USER_REPOSITORY } from './application/ports/user.repository.port';
+import { ActivateUserUseCase } from './application/use-cases/activate-user.use-case';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
 import { GenerateOtpCodeUseCase } from './application/use-cases/generate-otp-code.use-case';
@@ -38,6 +39,7 @@ import { PrismaUserRepository } from './infrastructure/persistence/repositories/
     CreateUserUseCase,
     GenerateOtpCodeUseCase,
     VerifyOtpCodeUseCase,
+    ActivateUserUseCase,
   ],
 })
 export class AuthModule {}
