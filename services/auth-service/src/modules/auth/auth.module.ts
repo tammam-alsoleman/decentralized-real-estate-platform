@@ -4,6 +4,7 @@ import { OTP_CODE_REPOSITORY } from './application/ports/otp-code.repository.por
 import { SESSION_REPOSITORY } from './application/ports/session.repository.port';
 import { USER_REPOSITORY } from './application/ports/user.repository.port';
 import { ActivateUserUseCase } from './application/use-cases/activate-user.use-case';
+import { CompletePhoneVerificationUseCase } from './application/use-cases/complete-phone-verification.use-case';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
 import { GenerateOtpCodeUseCase } from './application/use-cases/generate-otp-code.use-case';
@@ -44,6 +45,7 @@ import { PrismaUserRepository } from './infrastructure/persistence/repositories/
     ActivateUserUseCase,
     SubmitLegalIdentityProfileUseCase,
     RegisterUserWithOtpUseCase,
+    CompletePhoneVerificationUseCase,
   ],
 })
 export class AuthModule {}
