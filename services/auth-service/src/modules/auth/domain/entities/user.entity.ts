@@ -44,6 +44,11 @@ export class UserEntity {
     this.updatedAt = new Date();
   }
 
+  markEmailVerified(verifiedAt?: Date): UserEntity {
+    this.emailVerifiedAt = verifiedAt ?? new Date();
+    return this;
+  }
+
   suspend(): void {
     this.status = UserStatus.SUSPENDED;
     this.updatedAt = new Date();
