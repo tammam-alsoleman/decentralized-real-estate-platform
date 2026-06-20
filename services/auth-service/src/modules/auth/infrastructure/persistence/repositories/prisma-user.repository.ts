@@ -34,17 +34,23 @@ export class PrismaUserRepository implements UserRepositoryPort {
       create: {
         id: user.id,
         phoneNumber: user.phoneNumber,
+        email: user.email,
         passwordHash: user.passwordHash,
         role: user.role,
         status: user.status,
+        emailVerifiedAt: user.emailVerifiedAt,
+        phoneVerifiedAt: user.phoneVerifiedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
       update: {
         phoneNumber: user.phoneNumber,
+        email: user.email,
         passwordHash: user.passwordHash,
         role: user.role,
         status: user.status,
+        emailVerifiedAt: user.emailVerifiedAt,
+        phoneVerifiedAt: user.phoneVerifiedAt,
         updatedAt: user.updatedAt,
       },
     });

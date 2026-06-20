@@ -38,6 +38,7 @@ export class PrismaOtpCodeRepository implements OtpCodeRepositoryPort {
         id: otpCode.id,
         userId: otpCode.userId,
         phoneNumber: otpCode.phoneNumber,
+        email: otpCode.email,
         codeHash: otpCode.codeHash,
         purpose: otpCode.purpose,
         expiresAt: otpCode.expiresAt,
@@ -47,6 +48,7 @@ export class PrismaOtpCodeRepository implements OtpCodeRepositoryPort {
       },
       update: {
         codeHash: otpCode.codeHash,
+        email: otpCode.email,
         purpose: otpCode.purpose,
         expiresAt: otpCode.expiresAt,
         consumedAt: otpCode.consumedAt,

@@ -8,9 +8,12 @@ export class UserMapper {
     return new UserEntity({
       id: prismaUser.id,
       phoneNumber: prismaUser.phoneNumber,
+      email: prismaUser.email,
       passwordHash: prismaUser.passwordHash,
       role: prismaUser.role as UserRole,
       status: prismaUser.status as UserStatus,
+      emailVerifiedAt: prismaUser.emailVerifiedAt,
+      phoneVerifiedAt: prismaUser.phoneVerifiedAt,
       createdAt: prismaUser.createdAt,
       updatedAt: prismaUser.updatedAt,
     });
