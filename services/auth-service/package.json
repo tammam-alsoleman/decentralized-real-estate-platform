@@ -21,8 +21,11 @@
     "prisma:validate": "prisma validate"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.4",
+    "@grpc/proto-loader": "^0.8.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/microservices": "^11.1.27",
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "^6.19.3",
     "reflect-metadata": "^0.2.2",
