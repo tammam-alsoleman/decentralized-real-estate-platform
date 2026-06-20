@@ -6,6 +6,7 @@ import type { OtpCodeRepositoryPort } from '../ports/otp-code.repository.port';
 
 export type VerifyOtpCodeInput = {
   phoneNumber: string;
+  email?: string | null;
   purpose: OtpPurpose;
   plainCode: string;
 };
@@ -23,8 +24,14 @@ export class VerifyOtpCodeUseCase {
 
   async execute(input: VerifyOtpCodeInput): Promise<VerifyOtpCodeResult> {
     const now = new Date();
+    const isEmailVerification =
+      input.purpose === ('EMAIL_VERIFICATION' as OtpPurpose);
+    // Repository lookup is still phone-based until the OTP repository supports email lookup.
+    const lookupPhoneNumber = isEmailVerification && input.email
+      ? input.phoneNumber
+      : input.phoneNumber;
     const otpCode = await this.otpCodeRepository.findLatestValidCode(
-      input.phoneNumber,
+      lookupPhoneNumber,
       input.purpose,
       now,
     );

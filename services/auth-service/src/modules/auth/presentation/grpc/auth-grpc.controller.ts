@@ -10,6 +10,7 @@ import { throwGrpcError } from './auth-grpc-error.util';
 type RegisterUserRequest = {
   phoneNumber: string;
   passwordHash?: string;
+  email: string;
 };
 
 type RegisterUserResponse = {
@@ -17,11 +18,18 @@ type RegisterUserResponse = {
   phoneNumber: string;
   status: string;
   otpPlainCode: string;
+  email: string;
 };
 
 type CompletePhoneVerificationRequest = {
   userId: string;
   phoneNumber: string;
+  otpPlainCode: string;
+};
+
+type CompleteEmailVerificationRequest = {
+  userId: string;
+  email: string;
   otpPlainCode: string;
 };
 
@@ -91,9 +99,11 @@ export class AuthGrpcController {
   ): Promise<RegisterUserResponse> {
     try {
       const phoneNumber = this.requireString(request.phoneNumber, 'phoneNumber');
+      const email = this.requireString(request.email, 'email');
       const passwordHash = this.optionalString(request.passwordHash);
       const result = await this.registerUserWithOtpUseCase.execute({
         phoneNumber,
+        email,
         passwordHash: passwordHash ?? null,
       });
 
@@ -102,6 +112,7 @@ export class AuthGrpcController {
         phoneNumber: result.user.phoneNumber,
         status: result.user.status,
         otpPlainCode: result.plainCode,
+        email: result.user.email ?? email,
       };
     } catch (error) {
       throwGrpcError(error);
@@ -123,6 +134,41 @@ export class AuthGrpcController {
         await this.completePhoneVerificationUseCase.execute({
           userId,
           phoneNumber,
+          plainCode: otpPlainCode,
+        });
+
+      const legalIdentityProfile = verificationResult.verified
+        ? await this.getLegalIdentityProfileUseCase.execute(userId)
+        : null;
+
+      return {
+        verified: verificationResult.verified,
+        userId: verificationResult.user?.id ?? userId,
+        status: verificationResult.user?.status ?? '',
+        requiresLegalIdentity:
+          verificationResult.verified && !legalIdentityProfile,
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'CompleteEmailVerification')
+  async completeEmailVerification(
+    request: CompleteEmailVerificationRequest,
+  ): Promise<CompletePhoneVerificationResponse> {
+    try {
+      const userId = this.requireString(request.userId, 'userId');
+      const email = this.requireString(request.email, 'email');
+      const otpPlainCode = this.requireString(
+        request.otpPlainCode,
+        'otpPlainCode',
+      );
+      const verificationResult =
+        await this.completePhoneVerificationUseCase.execute({
+          userId,
+          email,
+          phoneNumber: '',
           plainCode: otpPlainCode,
         });
 

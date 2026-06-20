@@ -8,6 +8,7 @@ import type { OtpCodeRepositoryPort } from '../ports/otp-code.repository.port';
 export type GenerateOtpCodeInput = {
   userId: string;
   phoneNumber: string;
+  email?: string | null;
   purpose: OtpPurpose;
   expiresInMinutes?: number;
 };
@@ -34,6 +35,7 @@ export class GenerateOtpCodeUseCase {
       id: randomUUID(),
       userId: input.userId,
       phoneNumber: input.phoneNumber,
+      email: input.email ?? null,
       codeHash,
       purpose: input.purpose,
       expiresAt,
