@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { CompletePhoneVerificationUseCase } from '../../application/use-cases/complete-phone-verification.use-case';
+import { GetLegalIdentityForTransactionUseCase } from '../../application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from '../../application/use-cases/get-legal-identity-profile.use-case';
 import { RegisterUserWithOtpUseCase } from '../../application/use-cases/register-user-with-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from '../../application/use-cases/submit-legal-identity-profile.use-case';
@@ -40,18 +41,36 @@ type GetLegalIdentityProfileResponse = {
   legalFullName: string;
   status: string;
   dateOfBirth?: string;
+  legalAddress?: string;
 };
 
 type SubmitLegalIdentityProfileRequest = {
   userId: string;
   legalFullName: string;
-  nationalIdHash: string;
+  nationalId: string;
   dateOfBirth?: string;
+  legalAddress?: string;
 };
 
 type SubmitLegalIdentityProfileResponse = {
   userId: string;
   legalFullName: string;
+  status: string;
+  legalAddress?: string;
+};
+
+type GetLegalIdentityForTransactionRequest = {
+  userId: string;
+};
+
+type GetLegalIdentityForTransactionResponse = {
+  exists: boolean;
+  eligibleForTransaction: boolean;
+  userId: string;
+  legalFullName: string;
+  nationalId: string;
+  dateOfBirth?: string;
+  legalAddress?: string;
   status: string;
 };
 
@@ -62,6 +81,7 @@ export class AuthGrpcController {
     private readonly completePhoneVerificationUseCase: CompletePhoneVerificationUseCase,
     private readonly getLegalIdentityProfileUseCase: GetLegalIdentityProfileUseCase,
     private readonly submitLegalIdentityProfileUseCase: SubmitLegalIdentityProfileUseCase,
+    private readonly getLegalIdentityForTransactionUseCase: GetLegalIdentityForTransactionUseCase,
   ) {}
 
   @GrpcMethod('AuthService', 'RegisterUser')
@@ -128,6 +148,7 @@ export class AuthGrpcController {
       legalFullName: profile.legalFullName,
       status: profile.status,
       dateOfBirth: profile.dateOfBirth?.toISOString(),
+      legalAddress: profile.legalAddress ?? undefined,
     };
   }
 
@@ -138,14 +159,36 @@ export class AuthGrpcController {
     const profile = await this.submitLegalIdentityProfileUseCase.execute({
       userId: request.userId,
       legalFullName: request.legalFullName,
-      nationalIdHash: request.nationalIdHash,
+      nationalId: request.nationalId,
       dateOfBirth: request.dateOfBirth ? new Date(request.dateOfBirth) : null,
+      legalAddress: request.legalAddress ?? null,
     });
 
     return {
       userId: profile.userId,
       legalFullName: profile.legalFullName,
       status: profile.status,
+      legalAddress: profile.legalAddress ?? undefined,
+    };
+  }
+
+  @GrpcMethod('AuthService', 'GetLegalIdentityForTransaction')
+  async getLegalIdentityForTransaction(
+    request: GetLegalIdentityForTransactionRequest,
+  ): Promise<GetLegalIdentityForTransactionResponse> {
+    const result = await this.getLegalIdentityForTransactionUseCase.execute(
+      request.userId,
+    );
+
+    return {
+      exists: result.exists,
+      eligibleForTransaction: result.eligibleForTransaction,
+      userId: result.userId,
+      legalFullName: result.legalFullName,
+      nationalId: result.nationalId,
+      dateOfBirth: result.dateOfBirth?.toISOString(),
+      legalAddress: result.legalAddress ?? undefined,
+      status: result.status,
     };
   }
 }

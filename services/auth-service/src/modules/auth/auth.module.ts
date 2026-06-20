@@ -9,6 +9,7 @@ import { CompletePhoneVerificationUseCase } from './application/use-cases/comple
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
 import { GenerateOtpCodeUseCase } from './application/use-cases/generate-otp-code.use-case';
+import { GetLegalIdentityForTransactionUseCase } from './application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from './application/use-cases/get-legal-identity-profile.use-case';
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
 import { RegisterUserWithOtpUseCase } from './application/use-cases/register-user-with-otp.use-case';
@@ -56,6 +57,7 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     RegisterUserWithOtpUseCase,
     CompletePhoneVerificationUseCase,
     GetLegalIdentityProfileUseCase,
+    GetLegalIdentityForTransactionUseCase,
   ],
 })
 export class AuthModule {}

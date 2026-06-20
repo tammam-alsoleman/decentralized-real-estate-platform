@@ -7,6 +7,7 @@ service AuthService {
   rpc CompletePhoneVerification(CompletePhoneVerificationRequest) returns (CompletePhoneVerificationResponse);
   rpc GetLegalIdentityProfile(GetLegalIdentityProfileRequest) returns (GetLegalIdentityProfileResponse);
   rpc SubmitLegalIdentityProfile(SubmitLegalIdentityProfileRequest) returns (SubmitLegalIdentityProfileResponse);
+  rpc GetLegalIdentityForTransaction(GetLegalIdentityForTransactionRequest) returns (GetLegalIdentityForTransactionResponse);
 }
 
 message RegisterUserRequest {
@@ -44,17 +45,35 @@ message GetLegalIdentityProfileResponse {
   string legal_full_name = 3;
   string status = 4;
   optional string date_of_birth = 5;
+  optional string legal_address = 6;
 }
 
 message SubmitLegalIdentityProfileRequest {
   string user_id = 1;
   string legal_full_name = 2;
-  string national_id_hash = 3;
+  string national_id = 3;
   optional string date_of_birth = 4;
+  optional string legal_address = 5;
 }
 
 message SubmitLegalIdentityProfileResponse {
   string user_id = 1;
   string legal_full_name = 2;
   string status = 3;
+  optional string legal_address = 4;
+}
+
+message GetLegalIdentityForTransactionRequest {
+  string user_id = 1;
+}
+
+message GetLegalIdentityForTransactionResponse {
+  bool exists = 1;
+  bool eligible_for_transaction = 2;
+  string user_id = 3;
+  string legal_full_name = 4;
+  string national_id = 5;
+  optional string date_of_birth = 6;
+  optional string legal_address = 7;
+  string status = 8;
 }
