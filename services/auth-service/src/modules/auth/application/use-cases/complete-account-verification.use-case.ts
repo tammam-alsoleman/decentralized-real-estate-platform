@@ -4,28 +4,28 @@ import { OtpPurpose } from '../../domain/enums/otp-purpose.enum';
 import { ActivateUserUseCase } from './activate-user.use-case';
 import { VerifyOtpCodeUseCase } from './verify-otp-code.use-case';
 
-export type CompletePhoneVerificationInput = {
+export type CompleteAccountVerificationInput = {
   userId: string;
   phoneNumber: string;
   email?: string | null;
   plainCode: string;
 };
 
-export type CompletePhoneVerificationResult = {
+export type CompleteAccountVerificationResult = {
   verified: boolean;
   user: UserEntity | null;
 };
 
 @Injectable()
-export class CompletePhoneVerificationUseCase {
+export class CompleteAccountVerificationUseCase {
   constructor(
     private readonly verifyOtpCodeUseCase: VerifyOtpCodeUseCase,
     private readonly activateUserUseCase: ActivateUserUseCase,
   ) {}
 
   async execute(
-    input: CompletePhoneVerificationInput,
-  ): Promise<CompletePhoneVerificationResult> {
+    input: CompleteAccountVerificationInput,
+  ): Promise<CompleteAccountVerificationResult> {
     const purpose = input.email
       ? ('EMAIL_VERIFICATION' as OtpPurpose)
       : OtpPurpose.PHONE_VERIFICATION;
