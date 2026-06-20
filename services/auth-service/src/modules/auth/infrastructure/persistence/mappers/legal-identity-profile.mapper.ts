@@ -11,6 +11,8 @@ export class LegalIdentityProfileMapper {
       userId: prismaProfile.userId,
       legalFullName: prismaProfile.legalFullName,
       nationalIdHash: prismaProfile.nationalIdHash,
+      nationalIdEncrypted: prismaProfile.nationalIdEncrypted,
+      legalAddress: prismaProfile.legalAddress,
       dateOfBirth: prismaProfile.dateOfBirth,
       status: prismaProfile.status as LegalIdentityStatus,
       createdAt: prismaProfile.createdAt,

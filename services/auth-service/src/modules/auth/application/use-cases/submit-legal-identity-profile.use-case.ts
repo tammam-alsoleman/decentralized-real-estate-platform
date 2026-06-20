@@ -9,6 +9,8 @@ export type SubmitLegalIdentityProfileInput = {
   userId: string;
   legalFullName: string;
   nationalIdHash: string;
+  nationalIdEncrypted?: string | null;
+  legalAddress?: string | null;
   dateOfBirth?: Date | null;
 };
 
@@ -33,6 +35,8 @@ export class SubmitLegalIdentityProfileUseCase {
         userId: existingProfile.userId,
         legalFullName: input.legalFullName,
         nationalIdHash: input.nationalIdHash,
+        nationalIdEncrypted: input.nationalIdEncrypted ?? input.nationalIdHash,
+        legalAddress: input.legalAddress ?? null,
         dateOfBirth: input.dateOfBirth ?? null,
         status: LegalIdentityStatus.SUBMITTED,
         createdAt: existingProfile.createdAt,
@@ -47,6 +51,8 @@ export class SubmitLegalIdentityProfileUseCase {
       userId: input.userId,
       legalFullName: input.legalFullName,
       nationalIdHash: input.nationalIdHash,
+      nationalIdEncrypted: input.nationalIdEncrypted ?? input.nationalIdHash,
+      legalAddress: input.legalAddress ?? null,
       dateOfBirth: input.dateOfBirth ?? null,
       status: LegalIdentityStatus.SUBMITTED,
       createdAt: now,

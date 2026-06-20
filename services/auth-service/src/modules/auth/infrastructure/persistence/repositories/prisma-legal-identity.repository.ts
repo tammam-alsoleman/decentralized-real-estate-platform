@@ -48,6 +48,8 @@ export class PrismaLegalIdentityRepository
         userId: profile.userId,
         legalFullName: profile.legalFullName,
         nationalIdHash: profile.nationalIdHash,
+        nationalIdEncrypted: profile.nationalIdEncrypted,
+        legalAddress: profile.legalAddress,
         dateOfBirth: profile.dateOfBirth,
         status: profile.status,
         createdAt: profile.createdAt,
@@ -56,6 +58,8 @@ export class PrismaLegalIdentityRepository
       update: {
         legalFullName: profile.legalFullName,
         nationalIdHash: profile.nationalIdHash,
+        nationalIdEncrypted: profile.nationalIdEncrypted,
+        legalAddress: profile.legalAddress,
         dateOfBirth: profile.dateOfBirth,
         status: profile.status,
         updatedAt: profile.updatedAt,
