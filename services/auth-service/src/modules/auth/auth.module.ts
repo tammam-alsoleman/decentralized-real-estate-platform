@@ -18,9 +18,11 @@ import { PrismaLegalIdentityRepository } from './infrastructure/persistence/repo
 import { PrismaOtpCodeRepository } from './infrastructure/persistence/repositories/prisma-otp-code.repository';
 import { PrismaSessionRepository } from './infrastructure/persistence/repositories/prisma-session.repository';
 import { PrismaUserRepository } from './infrastructure/persistence/repositories/prisma-user.repository';
+import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
 
 @Module({
   imports: [PrismaModule],
+  controllers: [AuthGrpcController],
   providers: [
     {
       provide: USER_REPOSITORY,
