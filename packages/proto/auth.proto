@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package realestate.auth.v1;
+
+service AuthService {
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc CompletePhoneVerification(CompletePhoneVerificationRequest) returns (CompletePhoneVerificationResponse);
+  rpc GetLegalIdentityProfile(GetLegalIdentityProfileRequest) returns (GetLegalIdentityProfileResponse);
+  rpc SubmitLegalIdentityProfile(SubmitLegalIdentityProfileRequest) returns (SubmitLegalIdentityProfileResponse);
+}
+
+message RegisterUserRequest {
+  string phone_number = 1;
+  optional string password_hash = 2;
+}
+
+message RegisterUserResponse {
+  string user_id = 1;
+  string phone_number = 2;
+  string status = 3;
+  string otp_plain_code = 4;
+}
+
+message CompletePhoneVerificationRequest {
+  string user_id = 1;
+  string phone_number = 2;
+  string otp_plain_code = 3;
+}
+
+message CompletePhoneVerificationResponse {
+  bool verified = 1;
+  string user_id = 2;
+  string status = 3;
+  bool requires_legal_identity = 4;
+}
+
+message GetLegalIdentityProfileRequest {
+  string user_id = 1;
+}
+
+message GetLegalIdentityProfileResponse {
+  bool exists = 1;
+  string user_id = 2;
+  string legal_full_name = 3;
+  string status = 4;
+  optional string date_of_birth = 5;
+}
+
+message SubmitLegalIdentityProfileRequest {
+  string user_id = 1;
+  string legal_full_name = 2;
+  string national_id_hash = 3;
+  optional string date_of_birth = 4;
+}
+
+message SubmitLegalIdentityProfileResponse {
+  string user_id = 1;
+  string legal_full_name = 2;
+  string status = 3;
+}
