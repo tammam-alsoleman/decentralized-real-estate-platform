@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { CompletePhoneVerificationUseCase } from '../../application/use-cases/complete-phone-verification.use-case';
+import { CompleteAccountVerificationUseCase } from '../../application/use-cases/complete-account-verification.use-case';
 import { GetLegalIdentityForTransactionUseCase } from '../../application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from '../../application/use-cases/get-legal-identity-profile.use-case';
 import { RegisterUserWithOtpUseCase } from '../../application/use-cases/register-user-with-otp.use-case';
@@ -87,7 +87,7 @@ type GetLegalIdentityForTransactionResponse = {
 export class AuthGrpcController {
   constructor(
     private readonly registerUserWithOtpUseCase: RegisterUserWithOtpUseCase,
-    private readonly completePhoneVerificationUseCase: CompletePhoneVerificationUseCase,
+    private readonly completeAccountVerificationUseCase: CompleteAccountVerificationUseCase,
     private readonly getLegalIdentityProfileUseCase: GetLegalIdentityProfileUseCase,
     private readonly submitLegalIdentityProfileUseCase: SubmitLegalIdentityProfileUseCase,
     private readonly getLegalIdentityForTransactionUseCase: GetLegalIdentityForTransactionUseCase,
@@ -131,7 +131,7 @@ export class AuthGrpcController {
         'otpPlainCode',
       );
       const verificationResult =
-        await this.completePhoneVerificationUseCase.execute({
+        await this.completeAccountVerificationUseCase.execute({
           userId,
           phoneNumber,
           plainCode: otpPlainCode,
@@ -165,7 +165,7 @@ export class AuthGrpcController {
         'otpPlainCode',
       );
       const verificationResult =
-        await this.completePhoneVerificationUseCase.execute({
+        await this.completeAccountVerificationUseCase.execute({
           userId,
           email,
           phoneNumber: '',
