@@ -96,6 +96,8 @@ model LegalIdentityProfile {
   userId         String              @unique
   legalFullName  String
   nationalIdHash String
+  nationalIdEncrypted String      @map("national_id_encrypted")
+  legalAddress   String?             @map("legal_address")
   dateOfBirth    DateTime?
   status         LegalIdentityStatus @default(SUBMITTED)
   createdAt      DateTime            @default(now())

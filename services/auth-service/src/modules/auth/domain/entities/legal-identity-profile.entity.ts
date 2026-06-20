@@ -5,6 +5,8 @@ type LegalIdentityProfileEntityProps = {
   userId: string;
   legalFullName: string;
   nationalIdHash: string;
+  nationalIdEncrypted: string;
+  legalAddress?: string | null;
   dateOfBirth?: Date | null;
   status: LegalIdentityStatus;
   createdAt: Date;
@@ -16,6 +18,8 @@ export class LegalIdentityProfileEntity {
   userId: string;
   legalFullName: string;
   nationalIdHash: string;
+  nationalIdEncrypted: string;
+  legalAddress?: string | null;
   dateOfBirth?: Date | null;
   status: LegalIdentityStatus;
   createdAt: Date;
@@ -26,6 +30,8 @@ export class LegalIdentityProfileEntity {
     this.userId = props.userId;
     this.legalFullName = props.legalFullName;
     this.nationalIdHash = props.nationalIdHash;
+    this.nationalIdEncrypted = props.nationalIdEncrypted;
+    this.legalAddress = props.legalAddress;
     this.dateOfBirth = props.dateOfBirth;
     this.status = props.status;
     this.createdAt = props.createdAt;

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { LEGAL_IDENTITY_CRYPTO } from './application/ports/legal-identity-crypto.port';
 import { LEGAL_IDENTITY_REPOSITORY } from './application/ports/legal-identity.repository.port';
 import { OTP_CODE_REPOSITORY } from './application/ports/otp-code.repository.port';
 import { SESSION_REPOSITORY } from './application/ports/session.repository.port';
@@ -8,6 +9,7 @@ import { CompletePhoneVerificationUseCase } from './application/use-cases/comple
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
 import { GenerateOtpCodeUseCase } from './application/use-cases/generate-otp-code.use-case';
+import { GetLegalIdentityForTransactionUseCase } from './application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from './application/use-cases/get-legal-identity-profile.use-case';
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
 import { RegisterUserWithOtpUseCase } from './application/use-cases/register-user-with-otp.use-case';
@@ -18,6 +20,7 @@ import { PrismaLegalIdentityRepository } from './infrastructure/persistence/repo
 import { PrismaOtpCodeRepository } from './infrastructure/persistence/repositories/prisma-otp-code.repository';
 import { PrismaSessionRepository } from './infrastructure/persistence/repositories/prisma-session.repository';
 import { PrismaUserRepository } from './infrastructure/persistence/repositories/prisma-user.repository';
+import { NodeLegalIdentityCryptoService } from './infrastructure/security/node-legal-identity-crypto.service';
 import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
 
 @Module({
@@ -40,6 +43,10 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
       provide: LEGAL_IDENTITY_REPOSITORY,
       useClass: PrismaLegalIdentityRepository,
     },
+    {
+      provide: LEGAL_IDENTITY_CRYPTO,
+      useClass: NodeLegalIdentityCryptoService,
+    },
     GetUserByIdUseCase,
     FindUserByPhoneNumberUseCase,
     CreateUserUseCase,
@@ -50,6 +57,7 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     RegisterUserWithOtpUseCase,
     CompletePhoneVerificationUseCase,
     GetLegalIdentityProfileUseCase,
+    GetLegalIdentityForTransactionUseCase,
   ],
 })
 export class AuthModule {}
