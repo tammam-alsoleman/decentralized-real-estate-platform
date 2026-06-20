@@ -26,15 +26,18 @@ export class VerifyOtpCodeUseCase {
     const now = new Date();
     const isEmailVerification =
       input.purpose === ('EMAIL_VERIFICATION' as OtpPurpose);
-    // Repository lookup is still phone-based until the OTP repository supports email lookup.
-    const lookupPhoneNumber = isEmailVerification && input.email
-      ? input.phoneNumber
-      : input.phoneNumber;
-    const otpCode = await this.otpCodeRepository.findLatestValidCode(
-      lookupPhoneNumber,
-      input.purpose,
-      now,
-    );
+    const otpCode =
+      isEmailVerification && input.email
+        ? await this.otpCodeRepository.findLatestValidCodeByEmail(
+            input.email,
+            input.purpose,
+            now,
+          )
+        : await this.otpCodeRepository.findLatestValidCode(
+            input.phoneNumber,
+            input.purpose,
+            now,
+          );
 
     if (!otpCode) {
       return { verified: false };

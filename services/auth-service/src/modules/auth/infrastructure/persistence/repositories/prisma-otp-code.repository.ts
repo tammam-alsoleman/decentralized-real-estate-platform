@@ -31,6 +31,28 @@ export class PrismaOtpCodeRepository implements OtpCodeRepositoryPort {
     return OtpCodeMapper.toDomain(record);
   }
 
+  async findLatestValidCodeByEmail(
+    email: string,
+    purpose: OtpPurpose,
+    now = new Date(),
+  ): Promise<OtpCodeEntity | null> {
+    const record = await this.prisma.otpCode.findFirst({
+      where: {
+        email,
+        purpose,
+        consumedAt: null,
+        expiresAt: { gt: now },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return OtpCodeMapper.toDomain(record);
+  }
+
   async save(otpCode: OtpCodeEntity): Promise<OtpCodeEntity> {
     const savedOtpCode = await this.prisma.otpCode.upsert({
       where: { id: otpCode.id },
