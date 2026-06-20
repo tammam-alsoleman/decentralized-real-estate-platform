@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { LEGAL_IDENTITY_CRYPTO } from './application/ports/legal-identity-crypto.port';
 import { LEGAL_IDENTITY_REPOSITORY } from './application/ports/legal-identity.repository.port';
 import { OTP_CODE_REPOSITORY } from './application/ports/otp-code.repository.port';
 import { SESSION_REPOSITORY } from './application/ports/session.repository.port';
@@ -18,6 +19,7 @@ import { PrismaLegalIdentityRepository } from './infrastructure/persistence/repo
 import { PrismaOtpCodeRepository } from './infrastructure/persistence/repositories/prisma-otp-code.repository';
 import { PrismaSessionRepository } from './infrastructure/persistence/repositories/prisma-session.repository';
 import { PrismaUserRepository } from './infrastructure/persistence/repositories/prisma-user.repository';
+import { NodeLegalIdentityCryptoService } from './infrastructure/security/node-legal-identity-crypto.service';
 import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
 
 @Module({
@@ -39,6 +41,10 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     {
       provide: LEGAL_IDENTITY_REPOSITORY,
       useClass: PrismaLegalIdentityRepository,
+    },
+    {
+      provide: LEGAL_IDENTITY_CRYPTO,
+      useClass: NodeLegalIdentityCryptoService,
     },
     GetUserByIdUseCase,
     FindUserByPhoneNumberUseCase,
