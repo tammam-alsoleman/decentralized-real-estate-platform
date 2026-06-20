@@ -6,6 +6,7 @@ import type { OtpCodeRepositoryPort } from '../ports/otp-code.repository.port';
 
 export type VerifyOtpCodeInput = {
   phoneNumber: string;
+  email?: string | null;
   purpose: OtpPurpose;
   plainCode: string;
 };
@@ -23,11 +24,20 @@ export class VerifyOtpCodeUseCase {
 
   async execute(input: VerifyOtpCodeInput): Promise<VerifyOtpCodeResult> {
     const now = new Date();
-    const otpCode = await this.otpCodeRepository.findLatestValidCode(
-      input.phoneNumber,
-      input.purpose,
-      now,
-    );
+    const isEmailVerification =
+      input.purpose === ('EMAIL_VERIFICATION' as OtpPurpose);
+    const otpCode =
+      isEmailVerification && input.email
+        ? await this.otpCodeRepository.findLatestValidCodeByEmail(
+            input.email,
+            input.purpose,
+            now,
+          )
+        : await this.otpCodeRepository.findLatestValidCode(
+            input.phoneNumber,
+            input.purpose,
+            now,
+          );
 
     if (!otpCode) {
       return { verified: false };

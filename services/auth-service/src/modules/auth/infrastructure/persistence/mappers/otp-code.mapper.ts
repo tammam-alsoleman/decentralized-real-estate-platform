@@ -8,6 +8,7 @@ export class OtpCodeMapper {
       id: prismaOtpCode.id,
       userId: prismaOtpCode.userId,
       phoneNumber: prismaOtpCode.phoneNumber,
+      email: prismaOtpCode.email,
       codeHash: prismaOtpCode.codeHash,
       purpose: prismaOtpCode.purpose as OtpPurpose,
       expiresAt: prismaOtpCode.expiresAt,

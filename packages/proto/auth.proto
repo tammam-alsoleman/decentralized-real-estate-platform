@@ -5,6 +5,7 @@ package realestate.auth.v1;
 service AuthService {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
   rpc CompletePhoneVerification(CompletePhoneVerificationRequest) returns (CompletePhoneVerificationResponse);
+  rpc CompleteEmailVerification(CompleteEmailVerificationRequest) returns (CompletePhoneVerificationResponse);
   rpc GetLegalIdentityProfile(GetLegalIdentityProfileRequest) returns (GetLegalIdentityProfileResponse);
   rpc SubmitLegalIdentityProfile(SubmitLegalIdentityProfileRequest) returns (SubmitLegalIdentityProfileResponse);
   rpc GetLegalIdentityForTransaction(GetLegalIdentityForTransactionRequest) returns (GetLegalIdentityForTransactionResponse);
@@ -13,6 +14,7 @@ service AuthService {
 message RegisterUserRequest {
   string phone_number = 1;
   optional string password_hash = 2;
+  string email = 3;
 }
 
 message RegisterUserResponse {
@@ -20,11 +22,18 @@ message RegisterUserResponse {
   string phone_number = 2;
   string status = 3;
   string otp_plain_code = 4;
+  string email = 5;
 }
 
 message CompletePhoneVerificationRequest {
   string user_id = 1;
   string phone_number = 2;
+  string otp_plain_code = 3;
+}
+
+message CompleteEmailVerificationRequest {
+  string user_id = 1;
+  string email = 2;
   string otp_plain_code = 3;
 }
 

@@ -9,6 +9,7 @@ import type { UserRepositoryPort } from '../ports/user.repository.port';
 
 export type CreateUserInput = {
   phoneNumber: string;
+  email?: string | null;
   passwordHash?: string | null;
   role?: UserRole;
 };
@@ -33,9 +34,12 @@ export class CreateUserUseCase {
     const user = new UserEntity({
       id: randomUUID(),
       phoneNumber: input.phoneNumber,
+      email: input.email ?? null,
       passwordHash: input.passwordHash ?? null,
       role: input.role ?? UserRole.CITIZEN,
       status: UserStatus.PENDING_VERIFICATION,
+      emailVerifiedAt: null,
+      phoneVerifiedAt: null,
       createdAt: now,
       updatedAt: now,
     });

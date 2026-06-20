@@ -4,6 +4,7 @@ type OtpCodeEntityProps = {
   id: string;
   userId: string;
   phoneNumber: string;
+  email?: string | null;
   codeHash: string;
   purpose: OtpPurpose;
   expiresAt: Date;
@@ -16,6 +17,7 @@ export class OtpCodeEntity {
   id: string;
   userId: string;
   phoneNumber: string;
+  email?: string | null;
   codeHash: string;
   purpose: OtpPurpose;
   expiresAt: Date;
@@ -27,6 +29,7 @@ export class OtpCodeEntity {
     this.id = props.id;
     this.userId = props.userId;
     this.phoneNumber = props.phoneNumber;
+    this.email = props.email;
     this.codeHash = props.codeHash;
     this.purpose = props.purpose;
     this.expiresAt = props.expiresAt;

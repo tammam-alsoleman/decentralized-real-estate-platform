@@ -7,6 +7,7 @@ import { VerifyOtpCodeUseCase } from './verify-otp-code.use-case';
 export type CompletePhoneVerificationInput = {
   userId: string;
   phoneNumber: string;
+  email?: string | null;
   plainCode: string;
 };
 
@@ -25,9 +26,13 @@ export class CompletePhoneVerificationUseCase {
   async execute(
     input: CompletePhoneVerificationInput,
   ): Promise<CompletePhoneVerificationResult> {
+    const purpose = input.email
+      ? ('EMAIL_VERIFICATION' as OtpPurpose)
+      : OtpPurpose.PHONE_VERIFICATION;
     const verificationResult = await this.verifyOtpCodeUseCase.execute({
       phoneNumber: input.phoneNumber,
-      purpose: OtpPurpose.PHONE_VERIFICATION,
+      email: input.email ?? null,
+      purpose,
       plainCode: input.plainCode,
     });
 

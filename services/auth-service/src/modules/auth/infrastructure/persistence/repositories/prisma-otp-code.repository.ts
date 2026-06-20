@@ -31,6 +31,28 @@ export class PrismaOtpCodeRepository implements OtpCodeRepositoryPort {
     return OtpCodeMapper.toDomain(record);
   }
 
+  async findLatestValidCodeByEmail(
+    email: string,
+    purpose: OtpPurpose,
+    now = new Date(),
+  ): Promise<OtpCodeEntity | null> {
+    const record = await this.prisma.otpCode.findFirst({
+      where: {
+        email,
+        purpose,
+        consumedAt: null,
+        expiresAt: { gt: now },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return OtpCodeMapper.toDomain(record);
+  }
+
   async save(otpCode: OtpCodeEntity): Promise<OtpCodeEntity> {
     const savedOtpCode = await this.prisma.otpCode.upsert({
       where: { id: otpCode.id },
@@ -38,6 +60,7 @@ export class PrismaOtpCodeRepository implements OtpCodeRepositoryPort {
         id: otpCode.id,
         userId: otpCode.userId,
         phoneNumber: otpCode.phoneNumber,
+        email: otpCode.email,
         codeHash: otpCode.codeHash,
         purpose: otpCode.purpose,
         expiresAt: otpCode.expiresAt,
@@ -47,6 +70,7 @@ export class PrismaOtpCodeRepository implements OtpCodeRepositoryPort {
       },
       update: {
         codeHash: otpCode.codeHash,
+        email: otpCode.email,
         purpose: otpCode.purpose,
         expiresAt: otpCode.expiresAt,
         consumedAt: otpCode.consumedAt,

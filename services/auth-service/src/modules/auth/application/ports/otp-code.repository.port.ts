@@ -9,6 +9,11 @@ export interface OtpCodeRepositoryPort {
     purpose: OtpPurpose,
     now?: Date,
   ): Promise<OtpCodeEntity | null>;
+  findLatestValidCodeByEmail(
+    email: string,
+    purpose: OtpPurpose,
+    now?: Date,
+  ): Promise<OtpCodeEntity | null>;
   save(otpCode: OtpCodeEntity): Promise<OtpCodeEntity>;
   incrementAttempts(id: string): Promise<void>;
   markConsumed(id: string, consumedAt?: Date): Promise<void>;
