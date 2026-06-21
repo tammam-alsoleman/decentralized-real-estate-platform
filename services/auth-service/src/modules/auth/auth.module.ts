@@ -7,6 +7,7 @@ import { SESSION_REPOSITORY } from './application/ports/session.repository.port'
 import { USER_REPOSITORY } from './application/ports/user.repository.port';
 import { ActivateUserUseCase } from './application/use-cases/activate-user.use-case';
 import { CompleteAccountVerificationUseCase } from './application/use-cases/complete-account-verification.use-case';
+import { CompleteLoginOtpUseCase } from './application/use-cases/complete-login-otp.use-case';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
 import { GenerateOtpCodeUseCase } from './application/use-cases/generate-otp-code.use-case';
@@ -15,6 +16,7 @@ import { GetLegalIdentityProfileUseCase } from './application/use-cases/get-lega
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
 import { RegisterUserWithOtpUseCase } from './application/use-cases/register-user-with-otp.use-case';
 import { ResendEmailVerificationOtpUseCase } from './application/use-cases/resend-email-verification-otp.use-case';
+import { RequestLoginOtpUseCase } from './application/use-cases/request-login-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from './application/use-cases/submit-legal-identity-profile.use-case';
 import { VerifyOtpCodeUseCase } from './application/use-cases/verify-otp-code.use-case';
 import { DevelopmentEmailOtpDeliveryService } from './infrastructure/email/development-email-otp-delivery.service';
@@ -87,6 +89,8 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     SubmitLegalIdentityProfileUseCase,
     RegisterUserWithOtpUseCase,
     ResendEmailVerificationOtpUseCase,
+    RequestLoginOtpUseCase,
+    CompleteLoginOtpUseCase,
     CompleteAccountVerificationUseCase,
     GetLegalIdentityProfileUseCase,
     GetLegalIdentityForTransactionUseCase,

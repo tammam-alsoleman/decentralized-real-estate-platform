@@ -1,6 +1,7 @@
 import { status } from '@grpc/grpc-js';
 import { RpcException } from '@nestjs/microservices';
 import { AccountAlreadyVerifiedError } from '../../domain/errors/account-already-verified.error';
+import { AccountNotVerifiedError } from '../../domain/errors/account-not-verified.error';
 import { EmailAlreadyExistsError } from '../../domain/errors/email-already-exists.error';
 import { EmailVerificationOtpResendLimitExceededError } from '../../domain/errors/email-verification-otp-resend-limit-exceeded.error';
 import { PhoneNumberAlreadyExistsError } from '../../domain/errors/phone-number-already-exists.error';
@@ -23,7 +24,10 @@ export function throwGrpcError(error: unknown): never {
     });
   }
 
-  if (error instanceof AccountAlreadyVerifiedError) {
+  if (
+    error instanceof AccountAlreadyVerifiedError ||
+    error instanceof AccountNotVerifiedError
+  ) {
     throw new RpcException({
       code: status.FAILED_PRECONDITION,
       message: error.message,
