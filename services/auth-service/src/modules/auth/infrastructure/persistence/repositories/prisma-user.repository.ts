@@ -19,7 +19,17 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findByPhoneNumber(phoneNumber: string): Promise<UserEntity | null> {
-    const record = await this.prisma.user.findUnique({ where: { phoneNumber } });
+    const record = await this.prisma.user.findFirst({ where: { phoneNumber } });
+
+    if (!record) {
+      return null;
+    }
+
+    return UserMapper.toDomain(record);
+  }
+
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    const record = await this.prisma.user.findUnique({ where: { email } });
 
     if (!record) {
       return null;
