@@ -1,10 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { CompleteAccountVerificationUseCase } from '../../application/use-cases/complete-account-verification.use-case';
+import { CompleteLoginOtpUseCase } from '../../application/use-cases/complete-login-otp.use-case';
 import { GetLegalIdentityForTransactionUseCase } from '../../application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from '../../application/use-cases/get-legal-identity-profile.use-case';
 import { RegisterUserWithOtpUseCase } from '../../application/use-cases/register-user-with-otp.use-case';
 import { ResendEmailVerificationOtpUseCase } from '../../application/use-cases/resend-email-verification-otp.use-case';
+import { RequestLoginOtpUseCase } from '../../application/use-cases/request-login-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from '../../application/use-cases/submit-legal-identity-profile.use-case';
 import { throwGrpcError } from './auth-grpc-error.util';
 
@@ -32,6 +34,31 @@ type ResendEmailVerificationOtpResponse = {
   email: string;
   otpPlainCode: string;
   expiresAt: string;
+};
+
+type RequestLoginOtpRequest = {
+  email: string;
+};
+
+type RequestLoginOtpResponse = {
+  sent: boolean;
+  userId: string;
+  email: string;
+  otpPlainCode: string;
+  expiresAt: string;
+};
+
+type CompleteLoginOtpRequest = {
+  email: string;
+  otpPlainCode: string;
+};
+
+type CompleteLoginOtpResponse = {
+  authenticated: boolean;
+  userId: string;
+  email: string;
+  status: string;
+  requiresLegalIdentity: boolean;
 };
 
 type CompletePhoneVerificationRequest = {
@@ -101,6 +128,8 @@ export class AuthGrpcController {
   constructor(
     private readonly registerUserWithOtpUseCase: RegisterUserWithOtpUseCase,
     private readonly resendEmailVerificationOtpUseCase: ResendEmailVerificationOtpUseCase,
+    private readonly requestLoginOtpUseCase: RequestLoginOtpUseCase,
+    private readonly completeLoginOtpUseCase: CompleteLoginOtpUseCase,
     private readonly completeAccountVerificationUseCase: CompleteAccountVerificationUseCase,
     private readonly getLegalIdentityProfileUseCase: GetLegalIdentityProfileUseCase,
     private readonly submitLegalIdentityProfileUseCase: SubmitLegalIdentityProfileUseCase,
@@ -149,6 +178,53 @@ export class AuthGrpcController {
         email: result.email,
         otpPlainCode: result.otpPlainCode ?? '',
         expiresAt: result.expiresAt?.toISOString() ?? '',
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'RequestLoginOtp')
+  async requestLoginOtp(
+    request: RequestLoginOtpRequest,
+  ): Promise<RequestLoginOtpResponse> {
+    try {
+      const email = this.requireString(request.email, 'email');
+      const result = await this.requestLoginOtpUseCase.execute({ email });
+
+      return {
+        sent: result.sent,
+        userId: result.userId,
+        email: result.email,
+        otpPlainCode: result.otpPlainCode ?? '',
+        expiresAt: result.expiresAt?.toISOString() ?? '',
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'CompleteLoginOtp')
+  async completeLoginOtp(
+    request: CompleteLoginOtpRequest,
+  ): Promise<CompleteLoginOtpResponse> {
+    try {
+      const email = this.requireString(request.email, 'email');
+      const otpPlainCode = this.requireString(
+        request.otpPlainCode,
+        'otpPlainCode',
+      );
+      const result = await this.completeLoginOtpUseCase.execute({
+        email,
+        otpPlainCode,
+      });
+
+      return {
+        authenticated: result.authenticated,
+        userId: result.userId,
+        email: result.email,
+        status: result.status,
+        requiresLegalIdentity: result.requiresLegalIdentity,
       };
     } catch (error) {
       throwGrpcError(error);
