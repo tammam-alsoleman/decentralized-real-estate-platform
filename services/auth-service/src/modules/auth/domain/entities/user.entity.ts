@@ -10,6 +10,7 @@ type UserEntityProps = {
   status: UserStatus;
   emailVerifiedAt?: Date | null;
   phoneVerifiedAt?: Date | null;
+  emailVerificationResendCount?: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -23,6 +24,7 @@ export class UserEntity {
   status: UserStatus;
   emailVerifiedAt?: Date | null;
   phoneVerifiedAt?: Date | null;
+  emailVerificationResendCount: number;
   createdAt: Date;
   updatedAt: Date;
 
@@ -35,6 +37,8 @@ export class UserEntity {
     this.status = props.status;
     this.emailVerifiedAt = props.emailVerifiedAt;
     this.phoneVerifiedAt = props.phoneVerifiedAt;
+    this.emailVerificationResendCount =
+      props.emailVerificationResendCount ?? 0;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
@@ -46,6 +50,16 @@ export class UserEntity {
 
   markEmailVerified(verifiedAt?: Date): UserEntity {
     this.emailVerifiedAt = verifiedAt ?? new Date();
+    return this;
+  }
+
+  canResendEmailVerificationOtp(): boolean {
+    return this.emailVerificationResendCount < 1;
+  }
+
+  incrementEmailVerificationResendCount(): UserEntity {
+    this.emailVerificationResendCount += 1;
+    this.updatedAt = new Date();
     return this;
   }
 

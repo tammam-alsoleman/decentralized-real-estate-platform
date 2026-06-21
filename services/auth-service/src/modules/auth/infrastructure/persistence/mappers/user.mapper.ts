@@ -14,6 +14,8 @@ export class UserMapper {
       status: prismaUser.status as UserStatus,
       emailVerifiedAt: prismaUser.emailVerifiedAt,
       phoneVerifiedAt: prismaUser.phoneVerifiedAt,
+      emailVerificationResendCount:
+        prismaUser.emailVerificationResendCount,
       createdAt: prismaUser.createdAt,
       updatedAt: prismaUser.updatedAt,
     });
