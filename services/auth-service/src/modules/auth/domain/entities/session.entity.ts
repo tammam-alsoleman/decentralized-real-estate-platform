@@ -8,6 +8,7 @@ type SessionEntityProps = {
   revokedAt?: Date | null;
   expiresAt: Date;
   createdAt: Date;
+  updatedAt?: Date;
 };
 
 export class SessionEntity {
@@ -20,6 +21,7 @@ export class SessionEntity {
   revokedAt?: Date | null;
   expiresAt: Date;
   createdAt: Date;
+  updatedAt: Date;
 
   constructor(props: SessionEntityProps) {
     this.id = props.id;
@@ -31,6 +33,7 @@ export class SessionEntity {
     this.revokedAt = props.revokedAt;
     this.expiresAt = props.expiresAt;
     this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt ?? props.createdAt;
   }
 
   isExpired(now = new Date()): boolean {
@@ -43,5 +46,6 @@ export class SessionEntity {
 
   revoke(now = new Date()): void {
     this.revokedAt = now;
+    this.updatedAt = now;
   }
 }

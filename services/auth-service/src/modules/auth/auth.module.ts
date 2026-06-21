@@ -15,9 +15,12 @@ import { GetLegalIdentityForTransactionUseCase } from './application/use-cases/g
 import { GetLegalIdentityProfileUseCase } from './application/use-cases/get-legal-identity-profile.use-case';
 import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-case';
 import { RegisterUserWithOtpUseCase } from './application/use-cases/register-user-with-otp.use-case';
+import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { ResendEmailVerificationOtpUseCase } from './application/use-cases/resend-email-verification-otp.use-case';
 import { RequestLoginOtpUseCase } from './application/use-cases/request-login-otp.use-case';
+import { RefreshAuthSessionUseCase } from './application/use-cases/refresh-auth-session.use-case';
 import { SubmitLegalIdentityProfileUseCase } from './application/use-cases/submit-legal-identity-profile.use-case';
+import { ValidateAccessTokenUseCase } from './application/use-cases/validate-access-token.use-case';
 import { VerifyOtpCodeUseCase } from './application/use-cases/verify-otp-code.use-case';
 import { DevelopmentEmailOtpDeliveryService } from './infrastructure/email/development-email-otp-delivery.service';
 import { ResendEmailOtpDeliveryService } from './infrastructure/email/resend-email-otp-delivery.service';
@@ -27,6 +30,7 @@ import { PrismaLegalIdentityRepository } from './infrastructure/persistence/repo
 import { PrismaOtpCodeRepository } from './infrastructure/persistence/repositories/prisma-otp-code.repository';
 import { PrismaSessionRepository } from './infrastructure/persistence/repositories/prisma-session.repository';
 import { PrismaUserRepository } from './infrastructure/persistence/repositories/prisma-user.repository';
+import { AuthTokenService } from './infrastructure/security/auth-token.service';
 import { NodeLegalIdentityCryptoService } from './infrastructure/security/node-legal-identity-crypto.service';
 import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
 
@@ -54,6 +58,7 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
       provide: LEGAL_IDENTITY_CRYPTO,
       useClass: NodeLegalIdentityCryptoService,
     },
+    AuthTokenService,
     DevelopmentEmailOtpDeliveryService,
     ResendEmailOtpDeliveryService,
     SmtpEmailOtpDeliveryService,
@@ -91,6 +96,9 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     ResendEmailVerificationOtpUseCase,
     RequestLoginOtpUseCase,
     CompleteLoginOtpUseCase,
+    RefreshAuthSessionUseCase,
+    LogoutUseCase,
+    ValidateAccessTokenUseCase,
     CompleteAccountVerificationUseCase,
     GetLegalIdentityProfileUseCase,
     GetLegalIdentityForTransactionUseCase,

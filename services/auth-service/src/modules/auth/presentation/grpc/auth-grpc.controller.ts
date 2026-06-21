@@ -4,10 +4,13 @@ import { CompleteAccountVerificationUseCase } from '../../application/use-cases/
 import { CompleteLoginOtpUseCase } from '../../application/use-cases/complete-login-otp.use-case';
 import { GetLegalIdentityForTransactionUseCase } from '../../application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from '../../application/use-cases/get-legal-identity-profile.use-case';
+import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
 import { RegisterUserWithOtpUseCase } from '../../application/use-cases/register-user-with-otp.use-case';
+import { RefreshAuthSessionUseCase } from '../../application/use-cases/refresh-auth-session.use-case';
 import { ResendEmailVerificationOtpUseCase } from '../../application/use-cases/resend-email-verification-otp.use-case';
 import { RequestLoginOtpUseCase } from '../../application/use-cases/request-login-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from '../../application/use-cases/submit-legal-identity-profile.use-case';
+import { ValidateAccessTokenUseCase } from '../../application/use-cases/validate-access-token.use-case';
 import { throwGrpcError } from './auth-grpc-error.util';
 
 type RegisterUserRequest = {
@@ -59,6 +62,45 @@ type CompleteLoginOtpResponse = {
   email: string;
   status: string;
   requiresLegalIdentity: boolean;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: string;
+  refreshTokenExpiresAt: string;
+};
+
+type RefreshAuthSessionRequest = {
+  refreshToken: string;
+};
+
+type RefreshAuthSessionResponse = {
+  refreshed: boolean;
+  userId: string;
+  email: string;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: string;
+  refreshTokenExpiresAt: string;
+};
+
+type LogoutRequest = {
+  refreshToken: string;
+};
+
+type LogoutResponse = {
+  loggedOut: boolean;
+};
+
+type ValidateAccessTokenRequest = {
+  accessToken: string;
+};
+
+type ValidateAccessTokenResponse = {
+  valid: boolean;
+  userId: string;
+  email: string;
+  role: string;
+  status: string;
+  sessionId: string;
 };
 
 type CompletePhoneVerificationRequest = {
@@ -78,6 +120,13 @@ type CompletePhoneVerificationResponse = {
   userId: string;
   status: string;
   requiresLegalIdentity: boolean;
+};
+
+type CompleteEmailVerificationResponse = CompletePhoneVerificationResponse & {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: string;
+  refreshTokenExpiresAt: string;
 };
 
 type GetLegalIdentityProfileRequest = {
@@ -130,6 +179,9 @@ export class AuthGrpcController {
     private readonly resendEmailVerificationOtpUseCase: ResendEmailVerificationOtpUseCase,
     private readonly requestLoginOtpUseCase: RequestLoginOtpUseCase,
     private readonly completeLoginOtpUseCase: CompleteLoginOtpUseCase,
+    private readonly refreshAuthSessionUseCase: RefreshAuthSessionUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
+    private readonly validateAccessTokenUseCase: ValidateAccessTokenUseCase,
     private readonly completeAccountVerificationUseCase: CompleteAccountVerificationUseCase,
     private readonly getLegalIdentityProfileUseCase: GetLegalIdentityProfileUseCase,
     private readonly submitLegalIdentityProfileUseCase: SubmitLegalIdentityProfileUseCase,
@@ -225,6 +277,82 @@ export class AuthGrpcController {
         email: result.email,
         status: result.status,
         requiresLegalIdentity: result.requiresLegalIdentity,
+        accessToken: result.accessToken ?? '',
+        refreshToken: result.refreshToken ?? '',
+        accessTokenExpiresAt: result.accessTokenExpiresAt?.toISOString() ?? '',
+        refreshTokenExpiresAt:
+          result.refreshTokenExpiresAt?.toISOString() ?? '',
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'RefreshAuthSession')
+  async refreshAuthSession(
+    request: RefreshAuthSessionRequest,
+  ): Promise<RefreshAuthSessionResponse> {
+    try {
+      const refreshToken = this.requireString(
+        request.refreshToken,
+        'refreshToken',
+      );
+      const result = await this.refreshAuthSessionUseCase.execute({
+        refreshToken,
+      });
+
+      return {
+        refreshed: result.refreshed,
+        userId: result.userId,
+        email: result.email,
+        accessToken: result.accessToken ?? '',
+        refreshToken: result.refreshToken ?? '',
+        accessTokenExpiresAt: result.accessTokenExpiresAt?.toISOString() ?? '',
+        refreshTokenExpiresAt:
+          result.refreshTokenExpiresAt?.toISOString() ?? '',
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'Logout')
+  async logout(request: LogoutRequest): Promise<LogoutResponse> {
+    try {
+      const refreshToken = this.requireString(
+        request.refreshToken,
+        'refreshToken',
+      );
+      const result = await this.logoutUseCase.execute({ refreshToken });
+
+      return {
+        loggedOut: result.loggedOut,
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'ValidateAccessToken')
+  async validateAccessToken(
+    request: ValidateAccessTokenRequest,
+  ): Promise<ValidateAccessTokenResponse> {
+    try {
+      const accessToken = this.requireString(
+        request.accessToken,
+        'accessToken',
+      );
+      const result = await this.validateAccessTokenUseCase.execute({
+        accessToken,
+      });
+
+      return {
+        valid: result.valid,
+        userId: result.userId,
+        email: result.email,
+        role: result.role,
+        status: result.status,
+        sessionId: result.sessionId,
       };
     } catch (error) {
       throwGrpcError(error);
@@ -268,7 +396,7 @@ export class AuthGrpcController {
   @GrpcMethod('AuthService', 'CompleteEmailVerification')
   async completeEmailVerification(
     request: CompleteEmailVerificationRequest,
-  ): Promise<CompletePhoneVerificationResponse> {
+  ): Promise<CompleteEmailVerificationResponse> {
     try {
       const userId = this.requireString(request.userId, 'userId');
       const email = this.requireString(request.email, 'email');
@@ -294,6 +422,12 @@ export class AuthGrpcController {
         status: verificationResult.user?.status ?? '',
         requiresLegalIdentity:
           verificationResult.verified && !legalIdentityProfile,
+        accessToken: verificationResult.accessToken ?? '',
+        refreshToken: verificationResult.refreshToken ?? '',
+        accessTokenExpiresAt:
+          verificationResult.accessTokenExpiresAt?.toISOString() ?? '',
+        refreshTokenExpiresAt:
+          verificationResult.refreshTokenExpiresAt?.toISOString() ?? '',
       };
     } catch (error) {
       throwGrpcError(error);

@@ -28,6 +28,39 @@ export class PrismaSessionRepository implements SessionRepositoryPort {
     return SessionMapper.toDomain(record);
   }
 
+  async findByRefreshTokenHash(
+    refreshTokenHash: string,
+  ): Promise<SessionEntity | null> {
+    const record = await this.prisma.session.findUnique({
+      where: { refreshTokenHash },
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return SessionMapper.toDomain(record);
+  }
+
+  async create(session: SessionEntity): Promise<SessionEntity> {
+    const savedSession = await this.prisma.session.create({
+      data: {
+        id: session.id,
+        userId: session.userId,
+        jti: session.jti,
+        refreshTokenHash: session.refreshTokenHash,
+        userAgent: session.userAgent,
+        ipAddress: session.ipAddress,
+        revokedAt: session.revokedAt,
+        expiresAt: session.expiresAt,
+        createdAt: session.createdAt,
+        updatedAt: session.updatedAt,
+      },
+    });
+
+    return SessionMapper.toDomain(savedSession);
+  }
+
   async save(session: SessionEntity): Promise<SessionEntity> {
     const savedSession = await this.prisma.session.upsert({
       where: { id: session.id },
@@ -41,6 +74,7 @@ export class PrismaSessionRepository implements SessionRepositoryPort {
         revokedAt: session.revokedAt,
         expiresAt: session.expiresAt,
         createdAt: session.createdAt,
+        updatedAt: session.updatedAt,
       },
       update: {
         refreshTokenHash: session.refreshTokenHash,
@@ -48,10 +82,18 @@ export class PrismaSessionRepository implements SessionRepositoryPort {
         ipAddress: session.ipAddress,
         revokedAt: session.revokedAt,
         expiresAt: session.expiresAt,
+        updatedAt: session.updatedAt,
       },
     });
 
     return SessionMapper.toDomain(savedSession);
+  }
+
+  async revokeById(id: string, revokedAt = new Date()): Promise<void> {
+    await this.prisma.session.update({
+      where: { id },
+      data: { revokedAt },
+    });
   }
 
   async revokeByJti(jti: string, revokedAt = new Date()): Promise<void> {
@@ -59,5 +101,28 @@ export class PrismaSessionRepository implements SessionRepositoryPort {
       where: { jti },
       data: { revokedAt },
     });
+  }
+
+  async revokeAllForUser(userId: string, revokedAt = new Date()): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt },
+    });
+  }
+
+  async updateRefreshTokenHash(
+    sessionId: string,
+    refreshTokenHash: string,
+    expiresAt: Date,
+  ): Promise<SessionEntity> {
+    const savedSession = await this.prisma.session.update({
+      where: { id: sessionId },
+      data: {
+        refreshTokenHash,
+        expiresAt,
+      },
+    });
+
+    return SessionMapper.toDomain(savedSession);
   }
 }

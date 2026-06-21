@@ -1,7 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { SessionEntity } from '../../domain/entities/session.entity';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { OtpPurpose } from '../../domain/enums/otp-purpose.enum';
+import { SESSION_REPOSITORY } from '../ports/session.repository.port';
 import { USER_REPOSITORY } from '../ports/user.repository.port';
+import { AuthTokenService } from '../../infrastructure/security/auth-token.service';
+import type { SessionRepositoryPort } from '../ports/session.repository.port';
 import type { UserRepositoryPort } from '../ports/user.repository.port';
 import { ActivateUserUseCase } from './activate-user.use-case';
 import { VerifyOtpCodeUseCase } from './verify-otp-code.use-case';
@@ -16,6 +21,10 @@ export type CompleteAccountVerificationInput = {
 export type CompleteAccountVerificationResult = {
   verified: boolean;
   user: UserEntity | null;
+  accessToken?: string;
+  refreshToken?: string;
+  accessTokenExpiresAt?: Date;
+  refreshTokenExpiresAt?: Date;
 };
 
 @Injectable()
@@ -25,6 +34,9 @@ export class CompleteAccountVerificationUseCase {
     private readonly activateUserUseCase: ActivateUserUseCase,
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
+    @Inject(SESSION_REPOSITORY)
+    private readonly sessionRepository: SessionRepositoryPort,
+    private readonly authTokenService: AuthTokenService,
   ) {}
 
   async execute(
@@ -54,14 +66,46 @@ export class CompleteAccountVerificationUseCase {
       user.markEmailVerified();
       user.activate();
 
-      return {
-        verified: true,
-        user: await this.userRepository.save(user),
-      };
+      return this.createVerifiedSessionResult(
+        await this.userRepository.save(user),
+      );
     }
 
     const user = await this.activateUserUseCase.execute(input.userId);
 
-    return { verified: true, user };
+    if (!user) {
+      return { verified: true, user: null };
+    }
+
+    return this.createVerifiedSessionResult(user);
+  }
+
+  private async createVerifiedSessionResult(
+    user: UserEntity,
+  ): Promise<CompleteAccountVerificationResult> {
+    const sessionId = randomUUID();
+    const tokenPair = this.authTokenService.generateTokenPair(user, sessionId);
+    const now = new Date();
+    const session = new SessionEntity({
+      id: sessionId,
+      userId: user.id,
+      jti: randomUUID(),
+      refreshTokenHash: tokenPair.refreshTokenHash,
+      expiresAt: tokenPair.refreshTokenExpiresAt,
+      revokedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await this.sessionRepository.create(session);
+
+    return {
+      verified: true,
+      user,
+      accessToken: tokenPair.accessToken,
+      refreshToken: tokenPair.refreshToken,
+      accessTokenExpiresAt: tokenPair.accessTokenExpiresAt,
+      refreshTokenExpiresAt: tokenPair.refreshTokenExpiresAt,
+    };
   }
 }

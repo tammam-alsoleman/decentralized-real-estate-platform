@@ -13,6 +13,7 @@ export class SessionMapper {
       revokedAt: prismaSession.revokedAt,
       expiresAt: prismaSession.expiresAt,
       createdAt: prismaSession.createdAt,
+      updatedAt: prismaSession.updatedAt,
     });
   }
 }
