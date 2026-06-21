@@ -50,6 +50,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         status: user.status,
         emailVerifiedAt: user.emailVerifiedAt,
         phoneVerifiedAt: user.phoneVerifiedAt,
+        emailVerificationResendCount:
+          user.emailVerificationResendCount,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -61,6 +63,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         status: user.status,
         emailVerifiedAt: user.emailVerifiedAt,
         phoneVerifiedAt: user.phoneVerifiedAt,
+        emailVerificationResendCount:
+          user.emailVerificationResendCount,
         updatedAt: user.updatedAt,
       },
     });

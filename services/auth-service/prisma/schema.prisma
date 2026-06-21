@@ -47,6 +47,7 @@ model User {
   status               UserStatus            @default(PENDING_VERIFICATION)
   emailVerifiedAt      DateTime?             @map("email_verified_at")
   phoneVerifiedAt      DateTime?             @map("phone_verified_at")
+  emailVerificationResendCount Int           @default(0) @map("email_verification_resend_count")
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   otpCodes             OtpCode[]

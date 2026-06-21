@@ -4,6 +4,7 @@ package realestate.auth.v1;
 
 service AuthService {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc ResendEmailVerificationOtp(ResendEmailVerificationOtpRequest) returns (ResendEmailVerificationOtpResponse);
   rpc CompletePhoneVerification(CompletePhoneVerificationRequest) returns (CompletePhoneVerificationResponse);
   rpc CompleteEmailVerification(CompleteEmailVerificationRequest) returns (CompletePhoneVerificationResponse);
   rpc GetLegalIdentityProfile(GetLegalIdentityProfileRequest) returns (GetLegalIdentityProfileResponse);
@@ -23,6 +24,18 @@ message RegisterUserResponse {
   string status = 3;
   string otp_plain_code = 4;
   string email = 5;
+}
+
+message ResendEmailVerificationOtpRequest {
+  string email = 1;
+}
+
+message ResendEmailVerificationOtpResponse {
+  bool sent = 1;
+  string user_id = 2;
+  string email = 3;
+  string otp_plain_code = 4;
+  string expires_at = 5;
 }
 
 message CompletePhoneVerificationRequest {

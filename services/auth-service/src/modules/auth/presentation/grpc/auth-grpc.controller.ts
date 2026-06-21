@@ -4,6 +4,7 @@ import { CompleteAccountVerificationUseCase } from '../../application/use-cases/
 import { GetLegalIdentityForTransactionUseCase } from '../../application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from '../../application/use-cases/get-legal-identity-profile.use-case';
 import { RegisterUserWithOtpUseCase } from '../../application/use-cases/register-user-with-otp.use-case';
+import { ResendEmailVerificationOtpUseCase } from '../../application/use-cases/resend-email-verification-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from '../../application/use-cases/submit-legal-identity-profile.use-case';
 import { throwGrpcError } from './auth-grpc-error.util';
 
@@ -19,6 +20,18 @@ type RegisterUserResponse = {
   status: string;
   otpPlainCode: string;
   email: string;
+};
+
+type ResendEmailVerificationOtpRequest = {
+  email: string;
+};
+
+type ResendEmailVerificationOtpResponse = {
+  sent: boolean;
+  userId: string;
+  email: string;
+  otpPlainCode: string;
+  expiresAt: string;
 };
 
 type CompletePhoneVerificationRequest = {
@@ -87,6 +100,7 @@ type GetLegalIdentityForTransactionResponse = {
 export class AuthGrpcController {
   constructor(
     private readonly registerUserWithOtpUseCase: RegisterUserWithOtpUseCase,
+    private readonly resendEmailVerificationOtpUseCase: ResendEmailVerificationOtpUseCase,
     private readonly completeAccountVerificationUseCase: CompleteAccountVerificationUseCase,
     private readonly getLegalIdentityProfileUseCase: GetLegalIdentityProfileUseCase,
     private readonly submitLegalIdentityProfileUseCase: SubmitLegalIdentityProfileUseCase,
@@ -113,6 +127,28 @@ export class AuthGrpcController {
         status: result.user.status,
         otpPlainCode: result.plainCode,
         email: result.user.email ?? email,
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'ResendEmailVerificationOtp')
+  async resendEmailVerificationOtp(
+    request: ResendEmailVerificationOtpRequest,
+  ): Promise<ResendEmailVerificationOtpResponse> {
+    try {
+      const email = this.requireString(request.email, 'email');
+      const result = await this.resendEmailVerificationOtpUseCase.execute({
+        email,
+      });
+
+      return {
+        sent: result.sent,
+        userId: result.userId,
+        email: result.email,
+        otpPlainCode: result.otpPlainCode ?? '',
+        expiresAt: result.expiresAt?.toISOString() ?? '',
       };
     } catch (error) {
       throwGrpcError(error);
