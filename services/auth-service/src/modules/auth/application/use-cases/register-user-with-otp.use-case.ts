@@ -2,8 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { OtpCodeEntity } from '../../domain/entities/otp-code.entity';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { OtpPurpose } from '../../domain/enums/otp-purpose.enum';
+import { UserStatus } from '../../domain/enums/user-status.enum';
+import { EmailAlreadyExistsError } from '../../domain/errors/email-already-exists.error';
+import { EmailVerificationOtpResendLimitExceededError } from '../../domain/errors/email-verification-otp-resend-limit-exceeded.error';
 import { EMAIL_OTP_DELIVERY_PORT } from '../ports/email-otp-delivery.port';
+import { USER_REPOSITORY } from '../ports/user.repository.port';
 import type { EmailOtpDeliveryPort } from '../ports/email-otp-delivery.port';
+import type { UserRepositoryPort } from '../ports/user.repository.port';
 import {
   CreateUserInput,
   CreateUserUseCase,
@@ -30,11 +35,23 @@ export class RegisterUserWithOtpUseCase {
     private readonly generateOtpCodeUseCase: GenerateOtpCodeUseCase,
     @Inject(EMAIL_OTP_DELIVERY_PORT)
     private readonly emailOtpDelivery: EmailOtpDeliveryPort,
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: UserRepositoryPort,
   ) {}
 
   async execute(
     input: RegisterUserWithOtpInput,
   ): Promise<RegisterUserWithOtpResult> {
+    const existingUser = await this.userRepository.findByEmail(input.email);
+
+    if (existingUser?.status === UserStatus.ACTIVE) {
+      throw new EmailAlreadyExistsError();
+    }
+
+    if (existingUser?.status === UserStatus.PENDING_VERIFICATION) {
+      return this.resumePendingRegistration(existingUser, input.email);
+    }
+
     const user = await this.createUserUseCase.execute({
       ...input,
       email: input.email,
@@ -58,6 +75,38 @@ export class RegisterUserWithOtpUseCase {
 
     return {
       user,
+      otpCode: otpResult.otpCode,
+      plainCode: otpResult.plainCode,
+    };
+  }
+
+  private async resumePendingRegistration(
+    user: UserEntity,
+    email: string,
+  ): Promise<RegisterUserWithOtpResult> {
+    if (!user.canResendEmailVerificationOtp()) {
+      throw new EmailVerificationOtpResendLimitExceededError();
+    }
+
+    const otpResult = await this.generateOtpCodeUseCase.execute({
+      userId: user.id,
+      phoneNumber: user.phoneNumber,
+      email: user.email ?? email,
+      purpose: EMAIL_VERIFICATION,
+    });
+
+    await this.emailOtpDelivery.sendEmailOtp({
+      email: user.email ?? email,
+      otpPlainCode: otpResult.plainCode,
+      purpose: otpResult.otpCode.purpose,
+      expiresAt: otpResult.otpCode.expiresAt,
+    });
+
+    user.incrementEmailVerificationResendCount();
+    const savedUser = await this.userRepository.save(user);
+
+    return {
+      user: savedUser,
       otpCode: otpResult.otpCode,
       plainCode: otpResult.plainCode,
     };
