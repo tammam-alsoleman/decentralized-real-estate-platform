@@ -32,6 +32,7 @@ import { PrismaSessionRepository } from './infrastructure/persistence/repositori
 import { PrismaUserRepository } from './infrastructure/persistence/repositories/prisma-user.repository';
 import { AuthTokenService } from './infrastructure/security/auth-token.service';
 import { NodeLegalIdentityCryptoService } from './infrastructure/security/node-legal-identity-crypto.service';
+import { OtpResponsePolicyService } from './infrastructure/security/otp-response-policy.service';
 import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
 
 @Module({
@@ -59,6 +60,7 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
       useClass: NodeLegalIdentityCryptoService,
     },
     AuthTokenService,
+    OtpResponsePolicyService,
     DevelopmentEmailOtpDeliveryService,
     ResendEmailOtpDeliveryService,
     SmtpEmailOtpDeliveryService,

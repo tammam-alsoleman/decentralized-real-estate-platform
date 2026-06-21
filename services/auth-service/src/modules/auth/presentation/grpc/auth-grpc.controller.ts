@@ -206,7 +206,7 @@ export class AuthGrpcController {
         userId: result.user.id,
         phoneNumber: result.user.phoneNumber,
         status: result.user.status,
-        otpPlainCode: result.plainCode,
+        otpPlainCode: result.plainCode ?? '',
         email: result.user.email ?? email,
       };
     } catch (error) {

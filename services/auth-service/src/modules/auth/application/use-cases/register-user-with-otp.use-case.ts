@@ -9,6 +9,7 @@ import { EMAIL_OTP_DELIVERY_PORT } from '../ports/email-otp-delivery.port';
 import { USER_REPOSITORY } from '../ports/user.repository.port';
 import type { EmailOtpDeliveryPort } from '../ports/email-otp-delivery.port';
 import type { UserRepositoryPort } from '../ports/user.repository.port';
+import { OtpResponsePolicyService } from '../../infrastructure/security/otp-response-policy.service';
 import {
   CreateUserInput,
   CreateUserUseCase,
@@ -25,7 +26,7 @@ export type RegisterUserWithOtpInput = CreateUserInput & {
 export type RegisterUserWithOtpResult = {
   user: UserEntity;
   otpCode: OtpCodeEntity;
-  plainCode: string;
+  plainCode?: string;
 };
 
 @Injectable()
@@ -37,6 +38,7 @@ export class RegisterUserWithOtpUseCase {
     private readonly emailOtpDelivery: EmailOtpDeliveryPort,
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
+    private readonly otpResponsePolicy: OtpResponsePolicyService,
   ) {}
 
   async execute(
@@ -76,7 +78,9 @@ export class RegisterUserWithOtpUseCase {
     return {
       user,
       otpCode: otpResult.otpCode,
-      plainCode: otpResult.plainCode,
+      plainCode: this.otpResponsePolicy.shouldReturnOtpPlainCode()
+        ? otpResult.plainCode
+        : undefined,
     };
   }
 
@@ -108,7 +112,9 @@ export class RegisterUserWithOtpUseCase {
     return {
       user: savedUser,
       otpCode: otpResult.otpCode,
-      plainCode: otpResult.plainCode,
+      plainCode: this.otpResponsePolicy.shouldReturnOtpPlainCode()
+        ? otpResult.plainCode
+        : undefined,
     };
   }
 }
