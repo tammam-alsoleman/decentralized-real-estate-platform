@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OtpCodeEntity } from '../../domain/entities/otp-code.entity';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { OtpPurpose } from '../../domain/enums/otp-purpose.enum';
+import { EMAIL_OTP_DELIVERY_PORT } from '../ports/email-otp-delivery.port';
+import type { EmailOtpDeliveryPort } from '../ports/email-otp-delivery.port';
 import {
   CreateUserInput,
   CreateUserUseCase,
@@ -26,6 +28,8 @@ export class RegisterUserWithOtpUseCase {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly generateOtpCodeUseCase: GenerateOtpCodeUseCase,
+    @Inject(EMAIL_OTP_DELIVERY_PORT)
+    private readonly emailOtpDelivery: EmailOtpDeliveryPort,
   ) {}
 
   async execute(
@@ -42,6 +46,15 @@ export class RegisterUserWithOtpUseCase {
       email: user.email,
       purpose: EMAIL_VERIFICATION,
     });
+
+    if (input.email && otpResult.plainCode) {
+      await this.emailOtpDelivery.sendEmailOtp({
+        email: input.email,
+        otpPlainCode: otpResult.plainCode,
+        purpose: otpResult.otpCode.purpose,
+        expiresAt: otpResult.otpCode.expiresAt,
+      });
+    }
 
     return {
       user,

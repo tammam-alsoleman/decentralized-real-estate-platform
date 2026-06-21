@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EMAIL_OTP_DELIVERY_PORT } from './application/ports/email-otp-delivery.port';
 import { LEGAL_IDENTITY_CRYPTO } from './application/ports/legal-identity-crypto.port';
 import { LEGAL_IDENTITY_REPOSITORY } from './application/ports/legal-identity.repository.port';
 import { OTP_CODE_REPOSITORY } from './application/ports/otp-code.repository.port';
@@ -15,6 +16,8 @@ import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id.use-c
 import { RegisterUserWithOtpUseCase } from './application/use-cases/register-user-with-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from './application/use-cases/submit-legal-identity-profile.use-case';
 import { VerifyOtpCodeUseCase } from './application/use-cases/verify-otp-code.use-case';
+import { DevelopmentEmailOtpDeliveryService } from './infrastructure/email/development-email-otp-delivery.service';
+import { ResendEmailOtpDeliveryService } from './infrastructure/email/resend-email-otp-delivery.service';
 import { PrismaModule } from './infrastructure/persistence/prisma/prisma.module';
 import { PrismaLegalIdentityRepository } from './infrastructure/persistence/repositories/prisma-legal-identity.repository';
 import { PrismaOtpCodeRepository } from './infrastructure/persistence/repositories/prisma-otp-code.repository';
@@ -46,6 +49,25 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     {
       provide: LEGAL_IDENTITY_CRYPTO,
       useClass: NodeLegalIdentityCryptoService,
+    },
+    DevelopmentEmailOtpDeliveryService,
+    ResendEmailOtpDeliveryService,
+    {
+      provide: EMAIL_OTP_DELIVERY_PORT,
+      useFactory: (
+        developmentEmailOtpDeliveryService: DevelopmentEmailOtpDeliveryService,
+        resendEmailOtpDeliveryService: ResendEmailOtpDeliveryService,
+      ) => {
+        if (process.env.EMAIL_OTP_DELIVERY_PROVIDER === 'resend') {
+          return resendEmailOtpDeliveryService;
+        }
+
+        return developmentEmailOtpDeliveryService;
+      },
+      inject: [
+        DevelopmentEmailOtpDeliveryService,
+        ResendEmailOtpDeliveryService,
+      ],
     },
     GetUserByIdUseCase,
     FindUserByPhoneNumberUseCase,
