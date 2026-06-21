@@ -4,6 +4,8 @@ import { AccountAlreadyVerifiedError } from '../../domain/errors/account-already
 import { AccountNotVerifiedError } from '../../domain/errors/account-not-verified.error';
 import { EmailAlreadyExistsError } from '../../domain/errors/email-already-exists.error';
 import { EmailVerificationOtpResendLimitExceededError } from '../../domain/errors/email-verification-otp-resend-limit-exceeded.error';
+import { InvalidAccessTokenError } from '../../domain/errors/invalid-access-token.error';
+import { InvalidRefreshTokenError } from '../../domain/errors/invalid-refresh-token.error';
 import { PhoneNumberAlreadyExistsError } from '../../domain/errors/phone-number-already-exists.error';
 
 export function throwGrpcError(error: unknown): never {
@@ -30,6 +32,16 @@ export function throwGrpcError(error: unknown): never {
   ) {
     throw new RpcException({
       code: status.FAILED_PRECONDITION,
+      message: error.message,
+    });
+  }
+
+  if (
+    error instanceof InvalidRefreshTokenError ||
+    error instanceof InvalidAccessTokenError
+  ) {
+    throw new RpcException({
+      code: status.UNAUTHENTICATED,
       message: error.message,
     });
   }

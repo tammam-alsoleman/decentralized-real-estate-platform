@@ -7,8 +7,11 @@ service AuthService {
   rpc ResendEmailVerificationOtp(ResendEmailVerificationOtpRequest) returns (ResendEmailVerificationOtpResponse);
   rpc RequestLoginOtp(RequestLoginOtpRequest) returns (RequestLoginOtpResponse);
   rpc CompleteLoginOtp(CompleteLoginOtpRequest) returns (CompleteLoginOtpResponse);
+  rpc RefreshAuthSession(RefreshAuthSessionRequest) returns (RefreshAuthSessionResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc ValidateAccessToken(ValidateAccessTokenRequest) returns (ValidateAccessTokenResponse);
   rpc CompletePhoneVerification(CompletePhoneVerificationRequest) returns (CompletePhoneVerificationResponse);
-  rpc CompleteEmailVerification(CompleteEmailVerificationRequest) returns (CompletePhoneVerificationResponse);
+  rpc CompleteEmailVerification(CompleteEmailVerificationRequest) returns (CompleteEmailVerificationResponse);
   rpc GetLegalIdentityProfile(GetLegalIdentityProfileRequest) returns (GetLegalIdentityProfileResponse);
   rpc SubmitLegalIdentityProfile(SubmitLegalIdentityProfileRequest) returns (SubmitLegalIdentityProfileResponse);
   rpc GetLegalIdentityForTransaction(GetLegalIdentityForTransactionRequest) returns (GetLegalIdentityForTransactionResponse);
@@ -63,6 +66,45 @@ message CompleteLoginOtpResponse {
   string email = 3;
   string status = 4;
   bool requires_legal_identity = 5;
+  string access_token = 6;
+  string refresh_token = 7;
+  string access_token_expires_at = 8;
+  string refresh_token_expires_at = 9;
+}
+
+message RefreshAuthSessionRequest {
+  string refresh_token = 1;
+}
+
+message RefreshAuthSessionResponse {
+  bool refreshed = 1;
+  string user_id = 2;
+  string email = 3;
+  string access_token = 4;
+  string refresh_token = 5;
+  string access_token_expires_at = 6;
+  string refresh_token_expires_at = 7;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {
+  bool logged_out = 1;
+}
+
+message ValidateAccessTokenRequest {
+  string access_token = 1;
+}
+
+message ValidateAccessTokenResponse {
+  bool valid = 1;
+  string user_id = 2;
+  string email = 3;
+  string role = 4;
+  string status = 5;
+  string session_id = 6;
 }
 
 message CompletePhoneVerificationRequest {
@@ -82,6 +124,17 @@ message CompletePhoneVerificationResponse {
   string user_id = 2;
   string status = 3;
   bool requires_legal_identity = 4;
+}
+
+message CompleteEmailVerificationResponse {
+  bool verified = 1;
+  string user_id = 2;
+  string status = 3;
+  bool requires_legal_identity = 4;
+  string access_token = 5;
+  string refresh_token = 6;
+  string access_token_expires_at = 7;
+  string refresh_token_expires_at = 8;
 }
 
 message GetLegalIdentityProfileRequest {
