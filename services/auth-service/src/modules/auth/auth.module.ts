@@ -18,6 +18,7 @@ import { SubmitLegalIdentityProfileUseCase } from './application/use-cases/submi
 import { VerifyOtpCodeUseCase } from './application/use-cases/verify-otp-code.use-case';
 import { DevelopmentEmailOtpDeliveryService } from './infrastructure/email/development-email-otp-delivery.service';
 import { ResendEmailOtpDeliveryService } from './infrastructure/email/resend-email-otp-delivery.service';
+import { SmtpEmailOtpDeliveryService } from './infrastructure/email/smtp-email-otp-delivery.service';
 import { PrismaModule } from './infrastructure/persistence/prisma/prisma.module';
 import { PrismaLegalIdentityRepository } from './infrastructure/persistence/repositories/prisma-legal-identity.repository';
 import { PrismaOtpCodeRepository } from './infrastructure/persistence/repositories/prisma-otp-code.repository';
@@ -52,12 +53,18 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     },
     DevelopmentEmailOtpDeliveryService,
     ResendEmailOtpDeliveryService,
+    SmtpEmailOtpDeliveryService,
     {
       provide: EMAIL_OTP_DELIVERY_PORT,
       useFactory: (
         developmentEmailOtpDeliveryService: DevelopmentEmailOtpDeliveryService,
         resendEmailOtpDeliveryService: ResendEmailOtpDeliveryService,
+        smtpEmailOtpDeliveryService: SmtpEmailOtpDeliveryService,
       ) => {
+        if (process.env.EMAIL_OTP_DELIVERY_PROVIDER === 'smtp') {
+          return smtpEmailOtpDeliveryService;
+        }
+
         if (process.env.EMAIL_OTP_DELIVERY_PROVIDER === 'resend') {
           return resendEmailOtpDeliveryService;
         }
@@ -67,6 +74,7 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
       inject: [
         DevelopmentEmailOtpDeliveryService,
         ResendEmailOtpDeliveryService,
+        SmtpEmailOtpDeliveryService,
       ],
     },
     GetUserByIdUseCase,
