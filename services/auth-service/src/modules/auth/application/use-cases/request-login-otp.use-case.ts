@@ -6,6 +6,7 @@ import { EMAIL_OTP_DELIVERY_PORT } from '../ports/email-otp-delivery.port';
 import { USER_REPOSITORY } from '../ports/user.repository.port';
 import type { EmailOtpDeliveryPort } from '../ports/email-otp-delivery.port';
 import type { UserRepositoryPort } from '../ports/user.repository.port';
+import { OtpResponsePolicyService } from '../../infrastructure/security/otp-response-policy.service';
 import { GenerateOtpCodeUseCase } from './generate-otp-code.use-case';
 
 export type RequestLoginOtpInput = {
@@ -28,6 +29,7 @@ export class RequestLoginOtpUseCase {
     private readonly generateOtpCodeUseCase: GenerateOtpCodeUseCase,
     @Inject(EMAIL_OTP_DELIVERY_PORT)
     private readonly emailOtpDelivery: EmailOtpDeliveryPort,
+    private readonly otpResponsePolicy: OtpResponsePolicyService,
   ) {}
 
   async execute(input: RequestLoginOtpInput): Promise<RequestLoginOtpResult> {
@@ -63,7 +65,9 @@ export class RequestLoginOtpUseCase {
       sent: true,
       userId: user.id,
       email: user.email ?? input.email,
-      otpPlainCode: otpResult.plainCode,
+      otpPlainCode: this.otpResponsePolicy.shouldReturnOtpPlainCode()
+        ? otpResult.plainCode
+        : undefined,
       expiresAt: otpResult.otpCode.expiresAt,
     };
   }
