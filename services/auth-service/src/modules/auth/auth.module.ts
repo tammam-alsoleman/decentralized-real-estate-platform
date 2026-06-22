@@ -7,6 +7,7 @@ import { SESSION_REPOSITORY } from './application/ports/session.repository.port'
 import { USER_REPOSITORY } from './application/ports/user.repository.port';
 import { ActivateUserUseCase } from './application/use-cases/activate-user.use-case';
 import { CompleteAccountVerificationUseCase } from './application/use-cases/complete-account-verification.use-case';
+import { CompleteEmailChangeOtpUseCase } from './application/use-cases/complete-email-change-otp.use-case';
 import { CompleteLoginOtpUseCase } from './application/use-cases/complete-login-otp.use-case';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserByPhoneNumberUseCase } from './application/use-cases/find-user-by-phone-number.use-case';
@@ -19,7 +20,9 @@ import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { ResendEmailVerificationOtpUseCase } from './application/use-cases/resend-email-verification-otp.use-case';
 import { RequestLoginOtpUseCase } from './application/use-cases/request-login-otp.use-case';
 import { RefreshAuthSessionUseCase } from './application/use-cases/refresh-auth-session.use-case';
+import { RequestEmailChangeOtpUseCase } from './application/use-cases/request-email-change-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from './application/use-cases/submit-legal-identity-profile.use-case';
+import { UpdateMyContactInfoUseCase } from './application/use-cases/update-my-contact-info.use-case';
 import { ValidateAccessTokenUseCase } from './application/use-cases/validate-access-token.use-case';
 import { VerifyOtpCodeUseCase } from './application/use-cases/verify-otp-code.use-case';
 import { DevelopmentEmailOtpDeliveryService } from './infrastructure/email/development-email-otp-delivery.service';
@@ -101,6 +104,9 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
     RefreshAuthSessionUseCase,
     LogoutUseCase,
     ValidateAccessTokenUseCase,
+    UpdateMyContactInfoUseCase,
+    RequestEmailChangeOtpUseCase,
+    CompleteEmailChangeOtpUseCase,
     CompleteAccountVerificationUseCase,
     GetLegalIdentityProfileUseCase,
     GetLegalIdentityForTransactionUseCase,

@@ -6,6 +6,7 @@ import { EmailAlreadyExistsError } from '../../domain/errors/email-already-exist
 import { EmailVerificationOtpResendLimitExceededError } from '../../domain/errors/email-verification-otp-resend-limit-exceeded.error';
 import { InvalidAccessTokenError } from '../../domain/errors/invalid-access-token.error';
 import { InvalidRefreshTokenError } from '../../domain/errors/invalid-refresh-token.error';
+import { LegalIdentityAlreadySubmittedError } from '../../domain/errors/legal-identity-already-submitted.error';
 import { PhoneNumberAlreadyExistsError } from '../../domain/errors/phone-number-already-exists.error';
 
 export function throwGrpcError(error: unknown): never {
@@ -28,7 +29,8 @@ export function throwGrpcError(error: unknown): never {
 
   if (
     error instanceof AccountAlreadyVerifiedError ||
-    error instanceof AccountNotVerifiedError
+    error instanceof AccountNotVerifiedError ||
+    error instanceof LegalIdentityAlreadySubmittedError
   ) {
     throw new RpcException({
       code: status.FAILED_PRECONDITION,

@@ -10,6 +10,9 @@ service AuthService {
   rpc RefreshAuthSession(RefreshAuthSessionRequest) returns (RefreshAuthSessionResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
   rpc ValidateAccessToken(ValidateAccessTokenRequest) returns (ValidateAccessTokenResponse);
+  rpc UpdateMyContactInfo(UpdateMyContactInfoRequest) returns (UpdateMyContactInfoResponse);
+  rpc RequestEmailChangeOtp(RequestEmailChangeOtpRequest) returns (RequestEmailChangeOtpResponse);
+  rpc CompleteEmailChangeOtp(CompleteEmailChangeOtpRequest) returns (CompleteEmailChangeOtpResponse);
   rpc CompletePhoneVerification(CompletePhoneVerificationRequest) returns (CompletePhoneVerificationResponse);
   rpc CompleteEmailVerification(CompleteEmailVerificationRequest) returns (CompleteEmailVerificationResponse);
   rpc GetLegalIdentityProfile(GetLegalIdentityProfileRequest) returns (GetLegalIdentityProfileResponse);
@@ -105,6 +108,50 @@ message ValidateAccessTokenResponse {
   string role = 4;
   string status = 5;
   string session_id = 6;
+}
+
+message UpdateMyContactInfoRequest {
+  string user_id = 1;
+  string phone_number = 2;
+}
+
+message UpdateMyContactInfoResponse {
+  bool updated = 1;
+  string user_id = 2;
+  string phone_number = 3;
+  string email = 4;
+  string status = 5;
+}
+
+message RequestEmailChangeOtpRequest {
+  string user_id = 1;
+  string new_email = 2;
+}
+
+message RequestEmailChangeOtpResponse {
+  bool sent = 1;
+  string user_id = 2;
+  string current_email = 3;
+  string new_email = 4;
+  string otp_plain_code = 5;
+  string expires_at = 6;
+}
+
+message CompleteEmailChangeOtpRequest {
+  string user_id = 1;
+  string new_email = 2;
+  string otp_plain_code = 3;
+}
+
+message CompleteEmailChangeOtpResponse {
+  bool changed = 1;
+  string user_id = 2;
+  string email = 3;
+  string status = 4;
+  string access_token = 5;
+  string refresh_token = 6;
+  string access_token_expires_at = 7;
+  string refresh_token_expires_at = 8;
 }
 
 message CompletePhoneVerificationRequest {
