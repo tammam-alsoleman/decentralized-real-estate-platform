@@ -26,6 +26,8 @@ docker compose logs -f auth-service
 
 The `auth-service` image is built from the repository root so it can include `packages/proto/auth.proto` for gRPC runtime loading. The container listens on `50051`.
 
+`docker compose` does not require `services/auth-service/.env`; compose provides safe local defaults with `${VAR:-default}` substitutions. That `.env` file is optional for manual local runs of the service outside Docker. Local Docker Compose can override the auth database connection with `AUTH_SERVICE_DATABASE_URL`; do not use `localhost` inside the container `DATABASE_URL`, use the compose service hostname such as `postgres`. Production deployments should inject real secrets through environment variables or a secret manager, especially JWT, SMTP/Resend, and legal identity encryption values.
+
 ## Email OTP Delivery
 
 Set `EMAIL_OTP_DELIVERY_PROVIDER`:
