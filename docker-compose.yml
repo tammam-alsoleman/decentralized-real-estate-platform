@@ -30,6 +30,25 @@ services:
     networks:
       - realestate-network
 
+  auth-service:
+    container_name: realestate-auth-service
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "50051:50051"
+    depends_on:
+      - postgres
+      - rabbitmq
+    env_file:
+      - services/auth-service/.env
+    environment:
+      AUTH_GRPC_URL: 0.0.0.0:50051
+      DATABASE_URL: postgresql://realestate_user:realestate_password@postgres:5432/realestate_db?schema=auth_schema
+    networks:
+      - realestate-network
+
 volumes:
   postgres_data:
   rabbitmq_data:

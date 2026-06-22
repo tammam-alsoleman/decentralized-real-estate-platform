@@ -12,6 +12,19 @@ NestJS gRPC service for account registration, email OTP verification, login OTP,
 
 - `DATABASE_URL` points to PostgreSQL.
 - Prisma uses the `auth_schema` schema.
+- In Docker, `DATABASE_URL` must use the compose service hostname `postgres`, not `localhost`.
+
+## Docker
+
+From the repository root:
+
+```bash
+docker compose build auth-service
+docker compose up -d postgres rabbitmq auth-service
+docker compose logs -f auth-service
+```
+
+The `auth-service` image is built from the repository root so it can include `packages/proto/auth.proto` for gRPC runtime loading. The container listens on `50051`.
 
 ## Email OTP Delivery
 
