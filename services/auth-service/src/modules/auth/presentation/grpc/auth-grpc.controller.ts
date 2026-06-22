@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { CompleteAccountVerificationUseCase } from '../../application/use-cases/complete-account-verification.use-case';
+import { CompleteEmailChangeOtpUseCase } from '../../application/use-cases/complete-email-change-otp.use-case';
 import { CompleteLoginOtpUseCase } from '../../application/use-cases/complete-login-otp.use-case';
 import { GetLegalIdentityForTransactionUseCase } from '../../application/use-cases/get-legal-identity-for-transaction.use-case';
 import { GetLegalIdentityProfileUseCase } from '../../application/use-cases/get-legal-identity-profile.use-case';
@@ -8,8 +9,10 @@ import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
 import { RegisterUserWithOtpUseCase } from '../../application/use-cases/register-user-with-otp.use-case';
 import { RefreshAuthSessionUseCase } from '../../application/use-cases/refresh-auth-session.use-case';
 import { ResendEmailVerificationOtpUseCase } from '../../application/use-cases/resend-email-verification-otp.use-case';
+import { RequestEmailChangeOtpUseCase } from '../../application/use-cases/request-email-change-otp.use-case';
 import { RequestLoginOtpUseCase } from '../../application/use-cases/request-login-otp.use-case';
 import { SubmitLegalIdentityProfileUseCase } from '../../application/use-cases/submit-legal-identity-profile.use-case';
+import { UpdateMyContactInfoUseCase } from '../../application/use-cases/update-my-contact-info.use-case';
 import { ValidateAccessTokenUseCase } from '../../application/use-cases/validate-access-token.use-case';
 import { throwGrpcError } from './auth-grpc-error.util';
 
@@ -103,6 +106,50 @@ type ValidateAccessTokenResponse = {
   sessionId: string;
 };
 
+type UpdateMyContactInfoRequest = {
+  userId: string;
+  phoneNumber: string;
+};
+
+type UpdateMyContactInfoResponse = {
+  updated: boolean;
+  userId: string;
+  phoneNumber: string;
+  email: string;
+  status: string;
+};
+
+type RequestEmailChangeOtpRequest = {
+  userId: string;
+  newEmail: string;
+};
+
+type RequestEmailChangeOtpResponse = {
+  sent: boolean;
+  userId: string;
+  currentEmail: string;
+  newEmail: string;
+  otpPlainCode: string;
+  expiresAt: string;
+};
+
+type CompleteEmailChangeOtpRequest = {
+  userId: string;
+  newEmail: string;
+  otpPlainCode: string;
+};
+
+type CompleteEmailChangeOtpResponse = {
+  changed: boolean;
+  userId: string;
+  email: string;
+  status: string;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: string;
+  refreshTokenExpiresAt: string;
+};
+
 type CompletePhoneVerificationRequest = {
   userId: string;
   phoneNumber: string;
@@ -182,6 +229,9 @@ export class AuthGrpcController {
     private readonly refreshAuthSessionUseCase: RefreshAuthSessionUseCase,
     private readonly logoutUseCase: LogoutUseCase,
     private readonly validateAccessTokenUseCase: ValidateAccessTokenUseCase,
+    private readonly updateMyContactInfoUseCase: UpdateMyContactInfoUseCase,
+    private readonly requestEmailChangeOtpUseCase: RequestEmailChangeOtpUseCase,
+    private readonly completeEmailChangeOtpUseCase: CompleteEmailChangeOtpUseCase,
     private readonly completeAccountVerificationUseCase: CompleteAccountVerificationUseCase,
     private readonly getLegalIdentityProfileUseCase: GetLegalIdentityProfileUseCase,
     private readonly submitLegalIdentityProfileUseCase: SubmitLegalIdentityProfileUseCase,
@@ -353,6 +403,91 @@ export class AuthGrpcController {
         role: result.role,
         status: result.status,
         sessionId: result.sessionId,
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'UpdateMyContactInfo')
+  async updateMyContactInfo(
+    request: UpdateMyContactInfoRequest,
+  ): Promise<UpdateMyContactInfoResponse> {
+    try {
+      const userId = this.requireString(request.userId, 'userId');
+      const phoneNumber = this.requireString(
+        request.phoneNumber,
+        'phoneNumber',
+      );
+      const result = await this.updateMyContactInfoUseCase.execute({
+        userId,
+        phoneNumber,
+      });
+
+      return {
+        updated: result.updated,
+        userId: result.userId,
+        phoneNumber: result.phoneNumber,
+        email: result.email,
+        status: result.status,
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'RequestEmailChangeOtp')
+  async requestEmailChangeOtp(
+    request: RequestEmailChangeOtpRequest,
+  ): Promise<RequestEmailChangeOtpResponse> {
+    try {
+      const userId = this.requireString(request.userId, 'userId');
+      const newEmail = this.requireString(request.newEmail, 'newEmail');
+      const result = await this.requestEmailChangeOtpUseCase.execute({
+        userId,
+        newEmail,
+      });
+
+      return {
+        sent: result.sent,
+        userId: result.userId,
+        currentEmail: result.currentEmail,
+        newEmail: result.newEmail,
+        otpPlainCode: result.otpPlainCode ?? '',
+        expiresAt: result.expiresAt?.toISOString() ?? '',
+      };
+    } catch (error) {
+      throwGrpcError(error);
+    }
+  }
+
+  @GrpcMethod('AuthService', 'CompleteEmailChangeOtp')
+  async completeEmailChangeOtp(
+    request: CompleteEmailChangeOtpRequest,
+  ): Promise<CompleteEmailChangeOtpResponse> {
+    try {
+      const userId = this.requireString(request.userId, 'userId');
+      const newEmail = this.requireString(request.newEmail, 'newEmail');
+      const otpPlainCode = this.requireString(
+        request.otpPlainCode,
+        'otpPlainCode',
+      );
+      const result = await this.completeEmailChangeOtpUseCase.execute({
+        userId,
+        newEmail,
+        otpPlainCode,
+      });
+
+      return {
+        changed: result.changed,
+        userId: result.userId,
+        email: result.email,
+        status: result.status,
+        accessToken: result.accessToken ?? '',
+        refreshToken: result.refreshToken ?? '',
+        accessTokenExpiresAt: result.accessTokenExpiresAt?.toISOString() ?? '',
+        refreshTokenExpiresAt:
+          result.refreshTokenExpiresAt?.toISOString() ?? '',
       };
     } catch (error) {
       throwGrpcError(error);

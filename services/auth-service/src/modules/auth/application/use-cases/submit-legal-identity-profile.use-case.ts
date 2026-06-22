@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { LegalIdentityProfileEntity } from '../../domain/entities/legal-identity-profile.entity';
 import { LegalIdentityStatus } from '../../domain/enums/legal-identity-status.enum';
+import { LegalIdentityAlreadySubmittedError } from '../../domain/errors/legal-identity-already-submitted.error';
 import { LEGAL_IDENTITY_CRYPTO } from '../ports/legal-identity-crypto.port';
 import { LEGAL_IDENTITY_REPOSITORY } from '../ports/legal-identity.repository.port';
 import type { LegalIdentityCryptoPort } from '../ports/legal-identity-crypto.port';
@@ -33,6 +34,11 @@ export class SubmitLegalIdentityProfileUseCase {
     const existingProfile = await this.legalIdentityRepository.findByUserId(
       input.userId,
     );
+
+    if (existingProfile) {
+      throw new LegalIdentityAlreadySubmittedError();
+    }
+
     const nationalIdHash = input.nationalId
       ? this.legalIdentityCrypto.hashNationalId(input.nationalId)
       : input.nationalIdHash;
@@ -42,23 +48,6 @@ export class SubmitLegalIdentityProfileUseCase {
 
     if (!nationalIdHash || !nationalIdEncrypted) {
       throw new Error('Either nationalId or nationalIdHash is required.');
-    }
-
-    if (existingProfile) {
-      const profile = new LegalIdentityProfileEntity({
-        id: existingProfile.id,
-        userId: existingProfile.userId,
-        legalFullName: input.legalFullName,
-        nationalIdHash,
-        nationalIdEncrypted,
-        legalAddress: input.legalAddress ?? null,
-        dateOfBirth: input.dateOfBirth ?? null,
-        status: LegalIdentityStatus.SUBMITTED,
-        createdAt: existingProfile.createdAt,
-        updatedAt: now,
-      });
-
-      return this.legalIdentityRepository.save(profile);
     }
 
     const profile = new LegalIdentityProfileEntity({

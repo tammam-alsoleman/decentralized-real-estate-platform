@@ -35,6 +35,14 @@ Refresh tokens are stored hashed. Logout revokes sessions.
 - `AUTH_RETURN_OTP_IN_RESPONSE=true` returns OTP plaintext in gRPC responses for local testing.
 - `AUTH_RETURN_OTP_IN_RESPONSE=false` should be used in production so OTPs are delivered by email only.
 
+## Profile Updates
+
+- ACTIVE users can update their contact phone number.
+- Email change requires an OTP sent to the new email address.
+- Completing an email change revokes old sessions and issues a new token pair.
+- Legal identity cannot be edited after first submission.
+- Frontend clients should show a clear warning before legal identity submission.
+
 ## Security Notes
 
 - `RegisterUser` and `RequestLoginOtp` do not issue tokens.
