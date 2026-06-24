@@ -57,3 +57,12 @@ infrastructure/fabric/**/tls.key
 
 # Local development tools
 tools/
+
+# Fabric CA runtime artifacts
+infrastructure/fabric/organizations/fabric-ca/**/fabric-ca-server.db
+infrastructure/fabric/organizations/fabric-ca/**/ca-cert.pem
+infrastructure/fabric/organizations/fabric-ca/**/tls-cert.pem
+infrastructure/fabric/organizations/fabric-ca/**/msp/
+infrastructure/fabric/organizations/fabric-ca/**/IssuerPublicKey
+infrastructure/fabric/organizations/fabric-ca/**/IssuerRevocationPublicKey
+infrastructure/fabric/organizations/fabric-ca/**/IssuerSecretKey
