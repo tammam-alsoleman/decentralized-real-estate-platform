@@ -33,3 +33,24 @@ Thumbs.db
 # Prisma
 *.db
 *.db-journal
+
+# Hyperledger Fabric generated artifacts
+infrastructure/fabric/organizations/peerOrganizations/
+infrastructure/fabric/organizations/ordererOrganizations/
+infrastructure/fabric/channel-artifacts/*.block
+infrastructure/fabric/channel-artifacts/*.tx
+infrastructure/fabric/channel-artifacts/*.json
+infrastructure/fabric/system-genesis-block/
+infrastructure/fabric/production/
+infrastructure/fabric/ledgers-backup/
+
+# Fabric runtime and packages
+infrastructure/fabric/*.tar.gz
+infrastructure/fabric/chaincode/**/*.tar.gz
+
+# Fabric secrets and generated private keys
+infrastructure/fabric/**/keystore/
+infrastructure/fabric/**/*_sk
+infrastructure/fabric/**/server.key
+infrastructure/fabric/**/ca.key
+infrastructure/fabric/**/tls.key
