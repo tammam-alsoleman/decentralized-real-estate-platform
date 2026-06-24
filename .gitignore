@@ -54,3 +54,6 @@ infrastructure/fabric/**/*_sk
 infrastructure/fabric/**/server.key
 infrastructure/fabric/**/ca.key
 infrastructure/fabric/**/tls.key
+
+# Local development tools
+tools/
