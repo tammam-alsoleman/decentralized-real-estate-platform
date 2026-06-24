@@ -66,3 +66,6 @@ infrastructure/fabric/organizations/fabric-ca/**/msp/
 infrastructure/fabric/organizations/fabric-ca/**/IssuerPublicKey
 infrastructure/fabric/organizations/fabric-ca/**/IssuerRevocationPublicKey
 infrastructure/fabric/organizations/fabric-ca/**/IssuerSecretKey
+
+# Fabric CA generated config
+infrastructure/fabric/organizations/fabric-ca/**/fabric-ca-server-config.yaml
