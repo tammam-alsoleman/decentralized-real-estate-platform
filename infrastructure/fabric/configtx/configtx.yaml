@@ -1,0 +1,167 @@
+Organizations:
+  - &RegistryOrg
+    Name: RegistryMSP
+    ID: RegistryMSP
+    MSPDir: ../organizations/peerOrganizations/registry.realestate.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('RegistryMSP.admin', 'RegistryMSP.peer', 'RegistryMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('RegistryMSP.admin', 'RegistryMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('RegistryMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('RegistryMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.registry.realestate.local
+        Port: 7051
+
+  - &NotaryOrg
+    Name: NotaryMSP
+    ID: NotaryMSP
+    MSPDir: ../organizations/peerOrganizations/notary.realestate.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('NotaryMSP.admin', 'NotaryMSP.peer', 'NotaryMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('NotaryMSP.admin', 'NotaryMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('NotaryMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('NotaryMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.notary.realestate.local
+        Port: 8051
+
+  - &PlatformOrg
+    Name: PlatformMSP
+    ID: PlatformMSP
+    MSPDir: ../organizations/peerOrganizations/platform.realestate.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('PlatformMSP.admin', 'PlatformMSP.peer', 'PlatformMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('PlatformMSP.admin', 'PlatformMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('PlatformMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('PlatformMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.platform.realestate.local
+        Port: 9051
+
+  - &OrdererOrg
+    Name: OrdererMSP
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/realestate.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.realestate.local:7050
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.realestate.local
+        Port: 7050
+        ClientTLSCert: ../organizations/ordererOrganizations/realestate.local/orderers/orderer.realestate.local/tls/server.crt
+        ServerTLSCert: ../organizations/ordererOrganizations/realestate.local/orderers/orderer.realestate.local/tls/server.crt
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+  Capabilities:
+    <<: *OrdererCapabilities
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  RealEstateChannelGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *RegistryOrg
+        - *NotaryOrg
+        - *PlatformOrg
