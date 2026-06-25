@@ -88,6 +88,31 @@ EOF
   echo "$org_label CA admin enrolled."
 }
 
+register_identity() {
+  local org_label="$1"
+  local ca_admin_msp="$2"
+  local ca_name="$3"
+  local ca_url="$4"
+  local ca_tls_cert="$5"
+  local identity_name="$6"
+  local identity_secret="$7"
+  local identity_type="$8"
+  local ca_admin_home
+  ca_admin_home="$(dirname "$ca_admin_msp")"
+
+  echo "Registering $identity_name for $org_label ..."
+
+  FABRIC_CA_CLIENT_HOME="$ca_admin_home" fabric-ca-client register \
+    -u "$ca_url" \
+    --caname "$ca_name" \
+    --id.name "$identity_name" \
+    --id.secret "$identity_secret" \
+    --id.type "$identity_type" \
+    --tls.certfiles "$ca_tls_cert"
+
+  echo "$identity_name registered for $org_label."
+}
+
 ensure_clean_crypto_dirs
 
 enroll_ca_admin \
@@ -119,3 +144,45 @@ enroll_ca_admin \
   "$ORG_ROOT/ordererOrganizations/realestate.local/users/Admin@realestate.local/msp"
 
 echo "All CA admins enrolled."
+
+register_identity \
+  "Registry Org" \
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/users/Admin@registry.realestate.local/msp" \
+  "ca-registry" \
+  "https://localhost:7054" \
+  "$ORG_ROOT/fabric-ca/registry/tls-cert.pem" \
+  "peer0" \
+  "peer0pw" \
+  "peer"
+
+register_identity \
+  "Notary Org" \
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/users/Admin@notary.realestate.local/msp" \
+  "ca-notary" \
+  "https://localhost:8054" \
+  "$ORG_ROOT/fabric-ca/notary/tls-cert.pem" \
+  "peer0" \
+  "peer0pw" \
+  "peer"
+
+register_identity \
+  "Platform Org" \
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/users/Admin@platform.realestate.local/msp" \
+  "ca-platform" \
+  "https://localhost:9054" \
+  "$ORG_ROOT/fabric-ca/platform/tls-cert.pem" \
+  "peer0" \
+  "peer0pw" \
+  "peer"
+
+register_identity \
+  "Orderer Org" \
+  "$ORG_ROOT/ordererOrganizations/realestate.local/users/Admin@realestate.local/msp" \
+  "ca-orderer" \
+  "https://localhost:10054" \
+  "$ORG_ROOT/fabric-ca/orderer/tls-cert.pem" \
+  "orderer" \
+  "ordererpw" \
+  "orderer"
+
+echo "All node identities registered."
