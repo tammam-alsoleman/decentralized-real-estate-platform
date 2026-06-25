@@ -102,15 +102,159 @@ register_identity() {
 
   echo "Registering $identity_name for $org_label ..."
 
-  FABRIC_CA_CLIENT_HOME="$ca_admin_home" fabric-ca-client register \
-    -u "$ca_url" \
+  local output
+  if output=$(FABRIC_CA_CLIENT_HOME="$ca_admin_home" fabric-ca-client register \
+      -u "$ca_url" \
+      --caname "$ca_name" \
+      --id.name "$identity_name" \
+      --id.secret "$identity_secret" \
+      --id.type "$identity_type" \
+      --tls.certfiles "$ca_tls_cert" 2>&1); then
+    echo "$identity_name registered for $org_label."
+    return
+  fi
+
+  if [[ "$output" == *"already registered"* ]]; then
+    echo "$identity_name is already registered for $org_label; continuing."
+    return
+  fi
+
+  echo "$output"
+  exit 1
+}
+
+write_node_ou_config() {
+  local msp_dir="$1"
+  local ca_certs=("$msp_dir/cacerts/"*)
+
+  if [ ! -e "${ca_certs[0]}" ]; then
+    echo "No CA certificate found under $msp_dir/cacerts."
+    exit 1
+  fi
+
+  if [ "${#ca_certs[@]}" -ne 1 ]; then
+    echo "Expected exactly one CA certificate under $msp_dir/cacerts."
+    exit 1
+  fi
+
+  local ca_cert_filename
+  ca_cert_filename="$(basename "${ca_certs[0]}")"
+
+  cat >"$msp_dir/config.yaml" <<EOF
+NodeOUs:
+  Enable: true
+  ClientOUIdentifier:
+    Certificate: cacerts/$ca_cert_filename
+    OrganizationalUnitIdentifier: client
+  PeerOUIdentifier:
+    Certificate: cacerts/$ca_cert_filename
+    OrganizationalUnitIdentifier: peer
+  AdminOUIdentifier:
+    Certificate: cacerts/$ca_cert_filename
+    OrganizationalUnitIdentifier: admin
+  OrdererOUIdentifier:
+    Certificate: cacerts/$ca_cert_filename
+    OrganizationalUnitIdentifier: orderer
+EOF
+}
+
+copy_single_file() {
+  local source_dir="$1"
+  local target_file="$2"
+  local label="$3"
+  local files=("$source_dir/"*)
+
+  if [ ! -e "${files[0]}" ]; then
+    echo "No $label file found under $source_dir."
+    exit 1
+  fi
+
+  if [ "${#files[@]}" -ne 1 ]; then
+    echo "Expected exactly one $label file under $source_dir."
+    exit 1
+  fi
+
+  cp "${files[0]}" "$target_file"
+}
+
+normalize_tls_material() {
+  local tls_dir="$1"
+
+  copy_single_file "$tls_dir/tlscacerts" "$tls_dir/ca.crt" "TLS CA certificate"
+  copy_single_file "$tls_dir/signcerts" "$tls_dir/server.crt" "TLS server certificate"
+  copy_single_file "$tls_dir/keystore" "$tls_dir/server.key" "TLS server key"
+}
+
+enroll_peer_node() {
+  local org_label="$1"
+  local ca_name="$2"
+  local ca_url="$3"
+  local ca_tls_cert="$4"
+  local peer_name="$5"
+  local peer_secret="$6"
+  local peer_host="$7"
+  local peer_msp_dir="$8"
+  local peer_tls_dir="$9"
+
+  echo "Enrolling MSP for $peer_host ..."
+  fabric-ca-client enroll \
+    -u "https://$peer_name:$peer_secret@$ca_url" \
     --caname "$ca_name" \
-    --id.name "$identity_name" \
-    --id.secret "$identity_secret" \
-    --id.type "$identity_type" \
+    -M "$peer_msp_dir" \
+    --csr.hosts "$peer_host" \
     --tls.certfiles "$ca_tls_cert"
 
-  echo "$identity_name registered for $org_label."
+  write_node_ou_config "$peer_msp_dir"
+
+  echo "Enrolling TLS for $peer_host ..."
+  fabric-ca-client enroll \
+    -u "https://$peer_name:$peer_secret@$ca_url" \
+    --caname "$ca_name" \
+    -M "$peer_tls_dir" \
+    --enrollment.profile tls \
+    --csr.hosts "$peer_host" \
+    --csr.hosts localhost \
+    --tls.certfiles "$ca_tls_cert"
+
+  normalize_tls_material "$peer_tls_dir"
+
+  echo "$peer_host enrolled for $org_label."
+}
+
+enroll_orderer_node() {
+  local org_label="$1"
+  local ca_name="$2"
+  local ca_url="$3"
+  local ca_tls_cert="$4"
+  local orderer_name="$5"
+  local orderer_secret="$6"
+  local orderer_host="$7"
+  local orderer_msp_dir="$8"
+  local orderer_tls_dir="$9"
+
+  echo "Enrolling MSP for $orderer_host ..."
+  fabric-ca-client enroll \
+    -u "https://$orderer_name:$orderer_secret@$ca_url" \
+    --caname "$ca_name" \
+    -M "$orderer_msp_dir" \
+    --csr.hosts "$orderer_host" \
+    --tls.certfiles "$ca_tls_cert"
+
+  write_node_ou_config "$orderer_msp_dir"
+
+  echo "Enrolling TLS for $orderer_host ..."
+  fabric-ca-client enroll \
+    -u "https://$orderer_name:$orderer_secret@$ca_url" \
+    --caname "$ca_name" \
+    -M "$orderer_tls_dir" \
+    --enrollment.profile tls \
+    --csr.hosts "$orderer_host" \
+    --csr.hosts localhost \
+    --tls.certfiles "$ca_tls_cert"
+
+  normalize_tls_material "$orderer_tls_dir"
+
+  echo "$orderer_host enrolled for $org_label."
 }
 
 ensure_clean_crypto_dirs
@@ -186,3 +330,49 @@ register_identity \
   "orderer"
 
 echo "All node identities registered."
+
+enroll_peer_node \
+  "Registry Org" \
+  "ca-registry" \
+  "localhost:7054" \
+  "$ORG_ROOT/fabric-ca/registry/tls-cert.pem" \
+  "peer0" \
+  "peer0pw" \
+  "peer0.registry.realestate.local" \
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/peers/peer0.registry.realestate.local/msp" \
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/peers/peer0.registry.realestate.local/tls"
+
+enroll_peer_node \
+  "Notary Org" \
+  "ca-notary" \
+  "localhost:8054" \
+  "$ORG_ROOT/fabric-ca/notary/tls-cert.pem" \
+  "peer0" \
+  "peer0pw" \
+  "peer0.notary.realestate.local" \
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/peers/peer0.notary.realestate.local/msp" \
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/peers/peer0.notary.realestate.local/tls"
+
+enroll_peer_node \
+  "Platform Org" \
+  "ca-platform" \
+  "localhost:9054" \
+  "$ORG_ROOT/fabric-ca/platform/tls-cert.pem" \
+  "peer0" \
+  "peer0pw" \
+  "peer0.platform.realestate.local" \
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/peers/peer0.platform.realestate.local/msp" \
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/peers/peer0.platform.realestate.local/tls"
+
+enroll_orderer_node \
+  "Orderer Org" \
+  "ca-orderer" \
+  "localhost:10054" \
+  "$ORG_ROOT/fabric-ca/orderer/tls-cert.pem" \
+  "orderer" \
+  "ordererpw" \
+  "orderer.realestate.local" \
+  "$ORG_ROOT/ordererOrganizations/realestate.local/orderers/orderer.realestate.local/msp" \
+  "$ORG_ROOT/ordererOrganizations/realestate.local/orderers/orderer.realestate.local/tls"
+
+echo "All Fabric node MSP and TLS material enrolled."
