@@ -85,6 +85,9 @@ NodeOUs:
     OrganizationalUnitIdentifier: orderer
 EOF
 
+  mkdir -p "$msp_dir/tlscacerts"
+  cp "$ca_tls_cert" "$msp_dir/tlscacerts/ca.crt"
+
   echo "$org_label CA admin enrolled."
 }
 
@@ -257,6 +260,27 @@ enroll_orderer_node() {
   echo "$orderer_host enrolled for $org_label."
 }
 
+enroll_admin_identity() {
+  local org_label="$1"
+  local ca_name="$2"
+  local ca_url="$3"
+  local ca_tls_cert="$4"
+  local admin_name="$5"
+  local admin_secret="$6"
+  local admin_msp_dir="$7"
+
+  echo "Enrolling admin identity $admin_name for $org_label ..."
+  fabric-ca-client enroll \
+    -u "https://$admin_name:$admin_secret@$ca_url" \
+    --caname "$ca_name" \
+    -M "$admin_msp_dir" \
+    --tls.certfiles "$ca_tls_cert"
+
+  write_node_ou_config "$admin_msp_dir"
+
+  echo "$admin_name enrolled for $org_label."
+}
+
 ensure_clean_crypto_dirs
 
 enroll_ca_admin \
@@ -264,34 +288,34 @@ enroll_ca_admin \
   "ca-registry" \
   "https://admin:adminpw@localhost:7054" \
   "$ORG_ROOT/fabric-ca/registry/tls-cert.pem" \
-  "$ORG_ROOT/peerOrganizations/registry.realestate.local/users/Admin@registry.realestate.local/msp"
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/msp"
 
 enroll_ca_admin \
   "Notary Org" \
   "ca-notary" \
   "https://admin:adminpw@localhost:8054" \
   "$ORG_ROOT/fabric-ca/notary/tls-cert.pem" \
-  "$ORG_ROOT/peerOrganizations/notary.realestate.local/users/Admin@notary.realestate.local/msp"
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/msp"
 
 enroll_ca_admin \
   "Platform Org" \
   "ca-platform" \
   "https://admin:adminpw@localhost:9054" \
   "$ORG_ROOT/fabric-ca/platform/tls-cert.pem" \
-  "$ORG_ROOT/peerOrganizations/platform.realestate.local/users/Admin@platform.realestate.local/msp"
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/msp"
 
 enroll_ca_admin \
   "Orderer Org" \
   "ca-orderer" \
   "https://admin:adminpw@localhost:10054" \
   "$ORG_ROOT/fabric-ca/orderer/tls-cert.pem" \
-  "$ORG_ROOT/ordererOrganizations/realestate.local/users/Admin@realestate.local/msp"
+  "$ORG_ROOT/ordererOrganizations/realestate.local/msp"
 
 echo "All CA admins enrolled."
 
 register_identity \
   "Registry Org" \
-  "$ORG_ROOT/peerOrganizations/registry.realestate.local/users/Admin@registry.realestate.local/msp" \
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/msp" \
   "ca-registry" \
   "https://localhost:7054" \
   "$ORG_ROOT/fabric-ca/registry/tls-cert.pem" \
@@ -301,7 +325,7 @@ register_identity \
 
 register_identity \
   "Notary Org" \
-  "$ORG_ROOT/peerOrganizations/notary.realestate.local/users/Admin@notary.realestate.local/msp" \
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/msp" \
   "ca-notary" \
   "https://localhost:8054" \
   "$ORG_ROOT/fabric-ca/notary/tls-cert.pem" \
@@ -311,7 +335,7 @@ register_identity \
 
 register_identity \
   "Platform Org" \
-  "$ORG_ROOT/peerOrganizations/platform.realestate.local/users/Admin@platform.realestate.local/msp" \
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/msp" \
   "ca-platform" \
   "https://localhost:9054" \
   "$ORG_ROOT/fabric-ca/platform/tls-cert.pem" \
@@ -321,7 +345,7 @@ register_identity \
 
 register_identity \
   "Orderer Org" \
-  "$ORG_ROOT/ordererOrganizations/realestate.local/users/Admin@realestate.local/msp" \
+  "$ORG_ROOT/ordererOrganizations/realestate.local/msp" \
   "ca-orderer" \
   "https://localhost:10054" \
   "$ORG_ROOT/fabric-ca/orderer/tls-cert.pem" \
@@ -330,6 +354,86 @@ register_identity \
   "orderer"
 
 echo "All node identities registered."
+
+register_identity \
+  "Registry Org" \
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/msp" \
+  "ca-registry" \
+  "https://localhost:7054" \
+  "$ORG_ROOT/fabric-ca/registry/tls-cert.pem" \
+  "registryadmin" \
+  "registryadminpw" \
+  "admin"
+
+register_identity \
+  "Notary Org" \
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/msp" \
+  "ca-notary" \
+  "https://localhost:8054" \
+  "$ORG_ROOT/fabric-ca/notary/tls-cert.pem" \
+  "notaryadmin" \
+  "notaryadminpw" \
+  "admin"
+
+register_identity \
+  "Platform Org" \
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/msp" \
+  "ca-platform" \
+  "https://localhost:9054" \
+  "$ORG_ROOT/fabric-ca/platform/tls-cert.pem" \
+  "platformadmin" \
+  "platformadminpw" \
+  "admin"
+
+register_identity \
+  "Orderer Org" \
+  "$ORG_ROOT/ordererOrganizations/realestate.local/msp" \
+  "ca-orderer" \
+  "https://localhost:10054" \
+  "$ORG_ROOT/fabric-ca/orderer/tls-cert.pem" \
+  "ordereradmin" \
+  "ordereradminpw" \
+  "admin"
+
+echo "All organization admin identities registered."
+
+enroll_admin_identity \
+  "Registry Org" \
+  "ca-registry" \
+  "localhost:7054" \
+  "$ORG_ROOT/fabric-ca/registry/tls-cert.pem" \
+  "registryadmin" \
+  "registryadminpw" \
+  "$ORG_ROOT/peerOrganizations/registry.realestate.local/users/Admin@registry.realestate.local/msp"
+
+enroll_admin_identity \
+  "Notary Org" \
+  "ca-notary" \
+  "localhost:8054" \
+  "$ORG_ROOT/fabric-ca/notary/tls-cert.pem" \
+  "notaryadmin" \
+  "notaryadminpw" \
+  "$ORG_ROOT/peerOrganizations/notary.realestate.local/users/Admin@notary.realestate.local/msp"
+
+enroll_admin_identity \
+  "Platform Org" \
+  "ca-platform" \
+  "localhost:9054" \
+  "$ORG_ROOT/fabric-ca/platform/tls-cert.pem" \
+  "platformadmin" \
+  "platformadminpw" \
+  "$ORG_ROOT/peerOrganizations/platform.realestate.local/users/Admin@platform.realestate.local/msp"
+
+enroll_admin_identity \
+  "Orderer Org" \
+  "ca-orderer" \
+  "localhost:10054" \
+  "$ORG_ROOT/fabric-ca/orderer/tls-cert.pem" \
+  "ordereradmin" \
+  "ordereradminpw" \
+  "$ORG_ROOT/ordererOrganizations/realestate.local/users/Admin@realestate.local/msp"
+
+echo "All Fabric organization admin identities enrolled."
 
 enroll_peer_node \
   "Registry Org" \
