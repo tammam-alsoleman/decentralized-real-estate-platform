@@ -37,6 +37,21 @@ ensure_clean_crypto_dirs() {
   fi
 }
 
+copy_msp_tls_ca_root_cert() {
+  local ca_tls_cert="$1"
+  local msp_dir="$2"
+  local ca_root_cert
+  ca_root_cert="$(dirname "$ca_tls_cert")/ca-cert.pem"
+
+  if [ ! -f "$ca_root_cert" ]; then
+    echo "Fabric CA root certificate not found: $ca_root_cert"
+    exit 1
+  fi
+
+  mkdir -p "$msp_dir/tlscacerts"
+  cp "$ca_root_cert" "$msp_dir/tlscacerts/ca.crt"
+}
+
 enroll_ca_admin() {
   local org_label="$1"
   local ca_name="$2"
@@ -85,8 +100,7 @@ NodeOUs:
     OrganizationalUnitIdentifier: orderer
 EOF
 
-  mkdir -p "$msp_dir/tlscacerts"
-  cp "$ca_tls_cert" "$msp_dir/tlscacerts/ca.crt"
+  copy_msp_tls_ca_root_cert "$ca_tls_cert" "$msp_dir"
 
   echo "$org_label CA admin enrolled."
 }
