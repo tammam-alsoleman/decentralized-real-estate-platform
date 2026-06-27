@@ -93,8 +93,8 @@ type ContractRecord struct {
 	ContractType       string                 `json:"contractType"`
 	Status             string                 `json:"status"`
 	Property           PropertyInfo           `json:"property"`
-	SaleParties        *SaleParties           `json:"saleParties,omitempty"`
-	RentParties        *RentParties           `json:"rentParties,omitempty"`
+	SaleParties        *SaleParties           `json:"saleParties,omitempty" metadata:",optional"`
+	RentParties        *RentParties           `json:"rentParties,omitempty" metadata:",optional"`
 	IdentityHashes     IdentityHashes         `json:"identityHashes"`
 	ContractHash       string                 `json:"contractHash"`
 	ContractCid        string                 `json:"contractCid"`
@@ -103,8 +103,8 @@ type ContractRecord struct {
 	SignaturesHash     string                 `json:"signaturesHash"`
 	OccurredAt         string                 `json:"occurredAt"`
 	PlatformSubmission PlatformSubmission     `json:"platformSubmission"`
-	RegistryApproval   *InstitutionalDecision `json:"registryApproval,omitempty"`
-	NotaryApproval     *InstitutionalDecision `json:"notaryApproval,omitempty"`
+	RegistryApproval   *InstitutionalDecision `json:"registryApproval,omitempty" metadata:",optional"`
+	NotaryApproval     *InstitutionalDecision `json:"notaryApproval,omitempty" metadata:",optional"`
 	PayloadHash        string                 `json:"payloadHash"`
 	CreatedAt          string                 `json:"createdAt"`
 	UpdatedAt          string                 `json:"updatedAt"`
@@ -149,14 +149,14 @@ type RentParties struct {
 }
 
 type IdentityHashes struct {
-	SellerFullNameHash     string `json:"sellerFullNameHash,omitempty"`
-	SellerNationalIdHash   string `json:"sellerNationalIdHash,omitempty"`
-	BuyerFullNameHash      string `json:"buyerFullNameHash,omitempty"`
-	BuyerNationalIdHash    string `json:"buyerNationalIdHash,omitempty"`
-	LandlordFullNameHash   string `json:"landlordFullNameHash,omitempty"`
-	LandlordNationalIdHash string `json:"landlordNationalIdHash,omitempty"`
-	TenantFullNameHash     string `json:"tenantFullNameHash,omitempty"`
-	TenantNationalIdHash   string `json:"tenantNationalIdHash,omitempty"`
+	SellerFullNameHash     string `json:"sellerFullNameHash,omitempty" metadata:",optional"`
+	SellerNationalIdHash   string `json:"sellerNationalIdHash,omitempty" metadata:",optional"`
+	BuyerFullNameHash      string `json:"buyerFullNameHash,omitempty" metadata:",optional"`
+	BuyerNationalIdHash    string `json:"buyerNationalIdHash,omitempty" metadata:",optional"`
+	LandlordFullNameHash   string `json:"landlordFullNameHash,omitempty" metadata:",optional"`
+	LandlordNationalIdHash string `json:"landlordNationalIdHash,omitempty" metadata:",optional"`
+	TenantFullNameHash     string `json:"tenantFullNameHash,omitempty" metadata:",optional"`
+	TenantNationalIdHash   string `json:"tenantNationalIdHash,omitempty" metadata:",optional"`
 }
 
 type PlatformSubmission struct {
@@ -164,10 +164,10 @@ type PlatformSubmission struct {
 	PlatformReference string `json:"platformReference"`
 	PlatformProofHash string `json:"platformProofHash"`
 	SignaturesHash    string `json:"signaturesHash"`
-	SellerSignedAt    string `json:"sellerSignedAt,omitempty"`
-	BuyerSignedAt     string `json:"buyerSignedAt,omitempty"`
-	LandlordSignedAt  string `json:"landlordSignedAt,omitempty"`
-	TenantSignedAt    string `json:"tenantSignedAt,omitempty"`
+	SellerSignedAt    string `json:"sellerSignedAt,omitempty" metadata:",optional"`
+	BuyerSignedAt     string `json:"buyerSignedAt,omitempty" metadata:",optional"`
+	LandlordSignedAt  string `json:"landlordSignedAt,omitempty" metadata:",optional"`
+	TenantSignedAt    string `json:"tenantSignedAt,omitempty" metadata:",optional"`
 	SubmittedAt       string `json:"submittedAt"`
 	FabricTxId        string `json:"fabricTxId"`
 }
@@ -177,10 +177,10 @@ type InstitutionalDecision struct {
 	ApprovedByMsp       string `json:"approvedByMsp"`
 	Reference           string `json:"reference"`
 	EvidenceHash        string `json:"evidenceHash"`
-	EvidenceCid         string `json:"evidenceCid,omitempty"`
-	ReasonCode          string `json:"reasonCode,omitempty"`
-	ReasonSummary       string `json:"reasonSummary,omitempty"`
-	DecisionNotesHash   string `json:"decisionNotesHash,omitempty"`
+	EvidenceCid         string `json:"evidenceCid,omitempty" metadata:",optional"`
+	ReasonCode          string `json:"reasonCode,omitempty" metadata:",optional"`
+	ReasonSummary       string `json:"reasonSummary,omitempty" metadata:",optional"`
+	DecisionNotesHash   string `json:"decisionNotesHash,omitempty" metadata:",optional"`
 	DecidedAt           string `json:"decidedAt"`
 	FabricTxId          string `json:"fabricTxId"`
 	DecisionPayloadHash string `json:"decisionPayloadHash"`
@@ -192,12 +192,12 @@ type ContractEventPayload struct {
 	ContractType  string `json:"contractType"`
 	Status        string `json:"status"`
 	ActorMsp      string `json:"actorMsp"`
-	Reference     string `json:"reference,omitempty"`
-	ReasonCode    string `json:"reasonCode,omitempty"`
-	ReasonSummary string `json:"reasonSummary,omitempty"`
-	EvidenceHash  string `json:"evidenceHash,omitempty"`
-	EvidenceCid   string `json:"evidenceCid,omitempty"`
-	DecidedAt     string `json:"decidedAt,omitempty"`
+	Reference     string `json:"reference,omitempty" metadata:",optional"`
+	ReasonCode    string `json:"reasonCode,omitempty" metadata:",optional"`
+	ReasonSummary string `json:"reasonSummary,omitempty" metadata:",optional"`
+	EvidenceHash  string `json:"evidenceHash,omitempty" metadata:",optional"`
+	EvidenceCid   string `json:"evidenceCid,omitempty" metadata:",optional"`
+	DecidedAt     string `json:"decidedAt,omitempty" metadata:",optional"`
 	FabricTxId    string `json:"fabricTxId"`
 	EmittedAt     string `json:"emittedAt"`
 }
@@ -206,5 +206,5 @@ type HistoryRecord struct {
 	TxId      string          `json:"txId"`
 	Timestamp string          `json:"timestamp"`
 	IsDelete  bool            `json:"isDelete"`
-	Value     *ContractRecord `json:"value,omitempty"`
+	Value     *ContractRecord `json:"value,omitempty" metadata:",optional"`
 }
