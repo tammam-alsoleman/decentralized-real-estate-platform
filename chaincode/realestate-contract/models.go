@@ -148,16 +148,7 @@ type RentParties struct {
 	Currency           string `json:"currency"`
 }
 
-type IdentityHashes struct {
-	SellerFullNameHash     string `json:"sellerFullNameHash,omitempty" metadata:",optional"`
-	SellerNationalIdHash   string `json:"sellerNationalIdHash,omitempty" metadata:",optional"`
-	BuyerFullNameHash      string `json:"buyerFullNameHash,omitempty" metadata:",optional"`
-	BuyerNationalIdHash    string `json:"buyerNationalIdHash,omitempty" metadata:",optional"`
-	LandlordFullNameHash   string `json:"landlordFullNameHash,omitempty" metadata:",optional"`
-	LandlordNationalIdHash string `json:"landlordNationalIdHash,omitempty" metadata:",optional"`
-	TenantFullNameHash     string `json:"tenantFullNameHash,omitempty" metadata:",optional"`
-	TenantNationalIdHash   string `json:"tenantNationalIdHash,omitempty" metadata:",optional"`
-}
+type IdentityHashes map[string]string
 
 type PlatformSubmission struct {
 	SubmittedByMsp    string `json:"submittedByMsp"`

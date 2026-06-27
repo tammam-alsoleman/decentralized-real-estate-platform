@@ -106,10 +106,10 @@ func (s *SmartContract) SubmitContract(ctx contractapi.TransactionContextInterfa
 			Currency:         input.Currency,
 		}
 		record.IdentityHashes = IdentityHashes{
-			SellerFullNameHash:   hashString(input.SellerFullName),
-			SellerNationalIdHash: hashString(input.SellerNationalId),
-			BuyerFullNameHash:    hashString(input.BuyerFullName),
-			BuyerNationalIdHash:  hashString(input.BuyerNationalId),
+			"sellerFullNameHash":   hashString(input.SellerFullName),
+			"sellerNationalIdHash": hashString(input.SellerNationalId),
+			"buyerFullNameHash":    hashString(input.BuyerFullName),
+			"buyerNationalIdHash":  hashString(input.BuyerNationalId),
 		}
 		record.PlatformSubmission.SellerSignedAt = input.SellerSignedAt
 		record.PlatformSubmission.BuyerSignedAt = input.BuyerSignedAt
@@ -131,10 +131,10 @@ func (s *SmartContract) SubmitContract(ctx contractapi.TransactionContextInterfa
 			Currency:           input.Currency,
 		}
 		record.IdentityHashes = IdentityHashes{
-			LandlordFullNameHash:   hashString(input.LandlordFullName),
-			LandlordNationalIdHash: hashString(input.LandlordNationalId),
-			TenantFullNameHash:     hashString(input.TenantFullName),
-			TenantNationalIdHash:   hashString(input.TenantNationalId),
+			"landlordFullNameHash":   hashString(input.LandlordFullName),
+			"landlordNationalIdHash": hashString(input.LandlordNationalId),
+			"tenantFullNameHash":     hashString(input.TenantFullName),
+			"tenantNationalIdHash":   hashString(input.TenantNationalId),
 		}
 		record.PlatformSubmission.LandlordSignedAt = input.LandlordSignedAt
 		record.PlatformSubmission.TenantSignedAt = input.TenantSignedAt
