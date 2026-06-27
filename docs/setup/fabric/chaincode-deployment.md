@@ -17,6 +17,8 @@ It packages the Go chaincode from `chaincode/realestate-contract`, installs it o
 - RegistryMSP, NotaryMSP, and PlatformMSP peers have joined `realestatechannel`.
 - Fabric tools are installed under `tools/fabric`.
 - The chaincode has already been compiled and tested.
+- Go is available in the WSL `PATH`; this project was tested with Go 1.21.
+- Fabric CLI commands are loaded by sourcing `infrastructure/fabric/scripts/set-fabric-env.sh`.
 
 ## Run
 
