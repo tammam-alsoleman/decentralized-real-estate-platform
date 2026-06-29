@@ -6,7 +6,7 @@ import { FabricErrorMapper } from '../errors/fabric-error.mapper';
 import { ServiceError } from '../errors/service-error';
 import { SubmitContractMapper } from './mappers/submit-contract.mapper';
 import { ContractPayloadValidator } from './validators/contract-payload.validator';
-import { PropertyContractSubmissionRequestedEvent } from '../messaging/contracts/property-contract-submission-requested.event';
+import type { PropertyContractSubmissionRequestedEvent } from '../messaging/contracts/property-contract-submission-requested.event';
 
 export type ContractSubmissionResult = {
   transactionId: string;

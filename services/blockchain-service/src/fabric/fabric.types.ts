@@ -1,5 +1,5 @@
-import { ContractStatus } from '../contracts/types/contract-status.type';
-import { ContractType } from '../contracts/types/contract-type.type';
+import type { ContractStatus } from '../contracts/types/contract-status.type';
+import type { ContractType } from '../contracts/types/contract-type.type';
 
 export type FabricSubmitResult = {
   transactionId: string;

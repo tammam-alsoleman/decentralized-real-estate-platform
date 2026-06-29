@@ -1,6 +1,6 @@
 import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-import { ContractType } from '../types/contract-type.type';
+import type { ContractType } from '../types/contract-type.type';
 
 export class SubmitContractRequest {
   @IsString()

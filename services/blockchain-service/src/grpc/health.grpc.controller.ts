@@ -1,10 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 
-import {
-  HealthCheckResponse,
-  ReadinessService,
-} from './readiness.service';
+import { ReadinessService } from './readiness.service';
+import type { HealthCheckResponse } from './readiness.service';
 
 @Controller()
 export class HealthGrpcController {

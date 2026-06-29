@@ -1,4 +1,4 @@
-import { SubmitContractRequest } from '../../contracts/dto/submit-contract-request.dto';
+import type { SubmitContractRequest } from '../../contracts/dto/submit-contract-request.dto';
 
 export type PropertyContractSubmissionRequestedEvent = {
   messageId: string;

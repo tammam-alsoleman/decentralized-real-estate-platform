@@ -1,6 +1,6 @@
 import { ErrorCode } from '../../errors/error-codes';
 import { ServiceError } from '../../errors/service-error';
-import { SubmitContractRequest } from '../dto/submit-contract-request.dto';
+import type { SubmitContractRequest } from '../dto/submit-contract-request.dto';
 
 const commonFields: Array<keyof SubmitContractRequest> = [
   'transactionId',

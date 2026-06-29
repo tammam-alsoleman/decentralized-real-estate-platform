@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ErrorCode } from '../errors/error-codes';
 import { ServiceError } from '../errors/service-error';
 import { FabricGatewayFactory } from './fabric-gateway.factory';
-import {
+import type {
   FabricContractRecord,
   FabricHistoryRecord,
   FabricSubmitResult,

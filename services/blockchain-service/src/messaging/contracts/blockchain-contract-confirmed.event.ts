@@ -1,4 +1,4 @@
-import { ContractStatus } from '../../contracts/types/contract-status.type';
+import type { ContractStatus } from '../../contracts/types/contract-status.type';
 
 export type BlockchainContractConfirmedEvent = {
   transactionId: string;

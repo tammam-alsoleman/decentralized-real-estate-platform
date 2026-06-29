@@ -1,4 +1,4 @@
-import { ErrorCode } from '../../errors/error-codes';
+import type { ErrorCode } from '../../errors/error-codes';
 
 export type BlockchainContractSubmissionFailedEvent = {
   transactionId?: string;
