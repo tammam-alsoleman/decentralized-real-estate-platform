@@ -1,0 +1,35 @@
+import type { SubmitContractRequest } from '../dto/submit-contract-request.dto';
+
+export function validRentSubmitContractFixture(): SubmitContractRequest {
+  return {
+    transactionId: 'test-rent-transaction-001',
+    contractType: 'RENT',
+    propertyId: 'property-002',
+    registryNumber: 'REG-002',
+    propertyType: 'APARTMENT',
+    location: 'Test City',
+    area: '80',
+    ownershipDocumentHash: 'sha256:ownership-rent',
+    ownershipDocumentCid: 'ipfs://ownership-rent',
+    contractHash: 'sha256:contract-rent',
+    contractCid: 'ipfs://contract-rent',
+    auditPackageHash: 'sha256:audit-rent',
+    auditPackageCid: 'ipfs://audit-rent',
+    signaturesHash: 'sha256:signatures-rent',
+    platformReference: 'PLATFORM-002',
+    platformProofHash: 'sha256:platform-proof-rent',
+    occurredAt: '2026-01-02T00:00:00Z',
+    landlordUserId: 'landlord-001',
+    landlordFullName: 'Test Landlord',
+    landlordNationalId: 'LANDLORD-ID',
+    tenantUserId: 'tenant-001',
+    tenantFullName: 'Test Tenant',
+    tenantNationalId: 'TENANT-ID',
+    landlordSignedAt: '2026-01-02T00:01:00Z',
+    tenantSignedAt: '2026-01-02T00:02:00Z',
+    rentStartDate: '2026-02-01',
+    rentEndDate: '2027-02-01',
+    rentAmount: '1500',
+    currency: 'USD',
+  };
+}
