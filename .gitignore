@@ -70,3 +70,6 @@ infrastructure/fabric/organizations/fabric-ca/**/IssuerSecretKey
 
 # Fabric CA generated config
 infrastructure/fabric/organizations/fabric-ca/**/fabric-ca-server-config.yaml
+
+# TypeScript incremental build artifacts
+*.tsbuildinfo
