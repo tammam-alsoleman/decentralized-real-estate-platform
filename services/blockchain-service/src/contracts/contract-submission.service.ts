@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 
 import { FabricClientService } from '../fabric/fabric-client.service';
 import { BlockchainEventsPublisher } from '../messaging/publishers/blockchain-events.publisher';
@@ -19,6 +21,7 @@ export class ContractSubmissionService {
   constructor(
     private readonly fabricClient: FabricClientService,
     private readonly eventsPublisher: BlockchainEventsPublisher,
+    private readonly configService: ConfigService,
   ) {}
 
   async handleSubmissionRequested(
@@ -30,11 +33,20 @@ export class ContractSubmissionService {
       const result = await this.fabricClient.submitContract(fabricPayload);
 
       await this.eventsPublisher.publishContractSubmitted({
-        transactionId: result.transactionId,
-        fabricTxId: result.fabricTxId,
-        status: result.status,
-        payloadHash: result.payloadHash,
+        eventId: randomUUID(),
+        eventType: 'blockchain.contract.submitted',
         occurredAt: new Date().toISOString(),
+        transactionId: result.transactionId,
+        contractType: event.payload.contractType,
+        status: result.status,
+        fabricTxId: result.fabricTxId,
+        channelName:
+          this.configService.get<string>('fabric.channelName') ??
+          'realestatechannel',
+        chaincodeName:
+          this.configService.get<string>('fabric.chaincodeName') ??
+          'realestate-contract',
+        payloadHash: result.payloadHash,
         correlationId: event.correlationId,
       });
 
@@ -50,11 +62,14 @@ export class ContractSubmissionService {
           : FabricErrorMapper.toServiceError(error);
 
       await this.eventsPublisher.publishContractSubmissionFailed({
+        eventId: randomUUID(),
+        eventType: 'blockchain.contract.submission.failed',
+        occurredAt: new Date().toISOString(),
         transactionId: event.payload?.transactionId,
+        contractType: event.payload?.contractType,
         errorCode: serviceError.code,
         errorMessage: serviceError.message,
         retryable: serviceError.retryable,
-        occurredAt: new Date().toISOString(),
         correlationId: event.correlationId,
       });
 

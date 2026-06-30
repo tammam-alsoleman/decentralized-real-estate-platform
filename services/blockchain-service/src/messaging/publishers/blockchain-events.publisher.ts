@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { BlockchainContractConfirmedEvent } from '../contracts/blockchain-contract-confirmed.event';
 import { BlockchainContractRejectedEvent } from '../contracts/blockchain-contract-rejected.event';
@@ -8,19 +9,29 @@ import { RabbitmqService } from '../rabbitmq.service';
 
 @Injectable()
 export class BlockchainEventsPublisher {
-  constructor(private readonly rabbitmqService: RabbitmqService) {}
+  constructor(
+    private readonly rabbitmqService: RabbitmqService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async publishContractSubmitted(
     event: BlockchainContractSubmittedEvent,
   ): Promise<void> {
-    await this.rabbitmqService.publish('blockchain.contract.submitted', event);
+    await this.rabbitmqService.publish(
+      this.configService.get<string>(
+        'rabbitmq.contractSubmittedRoutingKey',
+      ) ?? 'blockchain.contract.submitted',
+      event,
+    );
   }
 
   async publishContractSubmissionFailed(
     event: BlockchainContractSubmissionFailedEvent,
   ): Promise<void> {
     await this.rabbitmqService.publish(
-      'blockchain.contract.submission.failed',
+      this.configService.get<string>(
+        'rabbitmq.contractSubmissionFailedRoutingKey',
+      ) ?? 'blockchain.contract.submission.failed',
       event,
     );
   }

@@ -16,6 +16,13 @@ export default () => ({
     contractSubmissionRoutingKey:
       process.env.RABBITMQ_CONTRACT_SUBMISSION_ROUTING_KEY ??
       'property.contract.submission.requested',
+    contractSubmittedRoutingKey:
+      process.env.RABBITMQ_CONTRACT_SUBMITTED_ROUTING_KEY ??
+      'blockchain.contract.submitted',
+    contractSubmissionFailedRoutingKey:
+      process.env.RABBITMQ_CONTRACT_SUBMISSION_FAILED_ROUTING_KEY ??
+      'blockchain.contract.submission.failed',
+    consumerEnabled: process.env.RABBITMQ_CONSUMER_ENABLED === 'true',
   },
   fabric: {
     channelName: process.env.FABRIC_CHANNEL_NAME ?? 'realestatechannel',
