@@ -26,6 +26,8 @@ export default () => ({
       'peer0.platform.realestate.local:9051',
     tlsCertPath:
       process.env.FABRIC_TLS_CERT_PATH ?? '/fabric/crypto/platform/tls/ca.crt',
+    tlsServerNameOverride:
+      process.env.FABRIC_TLS_SERVER_NAME_OVERRIDE ?? undefined,
     certPath:
       process.env.FABRIC_CERT_PATH ??
       '/fabric/crypto/platform/users/Admin@platform.realestate.local/msp/signcerts/cert.pem',

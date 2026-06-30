@@ -8,21 +8,31 @@ export class FabricErrorMapper {
     }
 
     if (error instanceof Error) {
-      const message = error.message.toLowerCase();
+      const message = `${error.name} ${error.message}`.toLowerCase();
 
-      if (message.includes('msp') || message.includes('authorization')) {
+      if (
+        message.includes('msp') ||
+        message.includes('authorization') ||
+        message.includes('access denied') ||
+        message.includes('permission')
+      ) {
         return new ServiceError(
           ErrorCode.FABRIC_AUTHORIZATION_ERROR,
-          error.message,
+          'Fabric authorization failed',
           false,
           error,
         );
       }
 
-      if (message.includes('already exists') || message.includes('different payload')) {
+      if (
+        message.includes('already exists') ||
+        message.includes('different payload') ||
+        message.includes('duplicate') ||
+        message.includes('mvcc')
+      ) {
         return new ServiceError(
           ErrorCode.FABRIC_CONFLICT_ERROR,
-          error.message,
+          'Fabric transaction conflicts with existing ledger state',
           false,
           error,
         );
@@ -31,25 +41,33 @@ export class FabricErrorMapper {
       if (message.includes('not found')) {
         return new ServiceError(
           ErrorCode.FABRIC_NOT_FOUND,
-          error.message,
+          'Fabric ledger record was not found',
           false,
           error,
         );
       }
 
-      if (message.includes('timeout') || message.includes('unavailable')) {
+      if (
+        message.includes('timeout') ||
+        message.includes('deadline') ||
+        message.includes('unavailable')
+      ) {
         return new ServiceError(
           ErrorCode.FABRIC_TRANSIENT_ERROR,
-          error.message,
+          'Fabric network is temporarily unavailable',
           true,
           error,
         );
       }
 
-      if (message.includes('rejected contract')) {
+      if (
+        message.includes('rejected contract') ||
+        message.includes('validation') ||
+        message.includes('endorsement policy')
+      ) {
         return new ServiceError(
           ErrorCode.FABRIC_REJECTED_STATE_ERROR,
-          error.message,
+          'Fabric transaction was rejected',
           false,
           error,
         );
@@ -58,7 +76,20 @@ export class FabricErrorMapper {
       if (message.includes('approval is required')) {
         return new ServiceError(
           ErrorCode.CONTRACT_APPROVALS_MISSING,
-          error.message,
+          'Contract approval is required before confirmation',
+          false,
+          error,
+        );
+      }
+
+      if (
+        message.includes('precondition') ||
+        message.includes('invalid argument') ||
+        message.includes('required')
+      ) {
+        return new ServiceError(
+          ErrorCode.FABRIC_PRECONDITION_ERROR,
+          'Fabric transaction precondition failed',
           false,
           error,
         );
@@ -66,7 +97,7 @@ export class FabricErrorMapper {
 
       return new ServiceError(
         ErrorCode.UNKNOWN_ERROR,
-        error.message,
+        'Unknown Fabric error',
         false,
         error,
       );

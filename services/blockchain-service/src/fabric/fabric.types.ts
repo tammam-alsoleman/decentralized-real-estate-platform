@@ -6,6 +6,8 @@ export type FabricSubmitResult = {
   fabricTxId: string;
   status: ContractStatus;
   payloadHash?: string;
+  contractRecord?: FabricContractRecord;
+  rawResult?: string;
 };
 
 export type FabricContractRecord = {
