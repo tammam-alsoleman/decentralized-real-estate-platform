@@ -63,3 +63,30 @@ jobs:
       - name: Build Auth Service
         working-directory: services/auth-service
         run: npm run build
+
+  blockchain-service-build:
+    name: Blockchain Service Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: services/blockchain-service/package-lock.json
+
+      - name: Install Blockchain Service dependencies
+        working-directory: services/blockchain-service
+        run: npm ci
+
+      - name: Test Blockchain Service
+        working-directory: services/blockchain-service
+        run: npm test
+
+      - name: Build Blockchain Service
+        working-directory: services/blockchain-service
+        run: npm run build
