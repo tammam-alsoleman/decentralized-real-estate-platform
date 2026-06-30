@@ -46,11 +46,16 @@ cd services/blockchain-service
 npm run smoke:fabric:submit
 ```
 
-The npm script builds the service first, then runs:
+The npm script builds the service first, then runs the local smoke script
+through `ts-node`:
 
 ```bash
-node dist/scripts/fabric-submit-contract.smoke.js
+ts-node -r tsconfig-paths/register src/scripts/fabric-submit-contract.smoke.ts
 ```
+
+The smoke script is intentionally executed through `ts-node` because it is a
+local manual verification utility and is not part of the Nest application
+bundle emitted by `nest build`.
 
 ## Expected Result
 
