@@ -11,7 +11,7 @@
     "build": "nest build",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "test": "jest",
-    "smoke:fabric:submit": "npm run build && node dist/scripts/fabric-submit-contract.smoke.js"
+    "smoke:fabric:submit": "npm run build && ts-node -r tsconfig-paths/register src/scripts/fabric-submit-contract.smoke.ts"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.4",
